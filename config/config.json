@@ -1,0 +1,44 @@
+{
+  "environment": "local",
+  "baseURL": "https://www.airportsapplaince.com/",
+  "api": {
+    "searchEndpoint": "/products",
+    "queryParamKey": "keyword",
+    "responseListPath": "products",
+    "waitForResponseTimeout": 30000
+  },
+  "selectors": {
+    "searchInput": "input[type='search']",
+    "searchSubmit": "",
+    "searchResultItems": ".product-card",
+    "productTitle": ".product-card__title",
+    "productDescription": ".product-card__description"
+  },
+  "timeouts": {
+    "navigation": 30000,
+    "element": 10000
+  },
+  "validation": {
+    "expectedMinResults": 1,
+    "resultFieldsToCheck": [
+      "title",
+      "name",
+      "description"
+    ]
+  },
+  "playwright": {
+    "headless": true,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "retries": 1,
+    "workers": 1,
+    "reporter": "html",
+    "video": "off",
+    "trace": "retain-on-failure"
+  },
+  "results": {
+    "outputPath": "results/results.csv"
+  }
+}
