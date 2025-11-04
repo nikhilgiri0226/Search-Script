@@ -81,8 +81,9 @@ test.beforeAll(() => {
 });
 
 test.describe('Search functionality validation', () => {
-  for (const { category, keyword } of searchQueries) {
-    test(`should return matching results for ${category}: "${keyword}"`, async ({ page }, testInfo) => {
+  for (const [index, { category, keyword }] of searchQueries.entries()) {
+    const title = `[${index + 1}] ${category} → ${keyword}`;
+    test(title, async ({ page }, testInfo) => {
       testCounter += 1;
 
       const normalizedKeyword = keyword.trim();
