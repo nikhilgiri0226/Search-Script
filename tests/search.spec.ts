@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import type { Response } from '@playwright/test';
 import { loadFrameworkConfig, loadSearchQueries } from '../utils/configLoader';
 import { getValueByPath, objectMatchesKeyword } from '../utils/jsonUtils';
 import { appendResult, initializeResultsFile } from '../utils/resultWriter';
@@ -16,11 +17,22 @@ const {
   environment,
 } = frameworkConfig;
 
-const searchEndpointMatcher = (url: string): boolean => {
+const searchEndpointMatcher = (response: Response): boolean => {
   const endpoint = api.searchEndpoint;
   if (!endpoint) {
     return false;
   }
+  const expectedMethod = (api.method ?? 'GET').toUpperCase();
+  const requestMethod = response.request().method().toUpperCase();
+  if (requestMethod !== expectedMethod) {
+    return false;
+  }
+
+  const url = response.url();
+  if (endpoint.startsWith('http')) {
+    return url.startsWith(endpoint);
+  }
+
   return url.includes(endpoint);
 };
 
@@ -51,7 +63,7 @@ test.describe('Search functionality validation', () => {
         await searchInput.fill(normalizedKeyword, { timeout: timeouts.element });
 
         const responsePromise = page.waitForResponse(
-          (response) => searchEndpointMatcher(response.url()),
+          (response) => searchEndpointMatcher(response),
           { timeout: api.waitForResponseTimeout ?? timeouts.navigation }
         );
 

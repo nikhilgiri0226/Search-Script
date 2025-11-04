@@ -1,10 +1,11 @@
 {
   "environment": "local",
-  "baseURL": "https://www.airportsapplaince.com/",
+  "baseURL": "https://www.airportappliance.com/",
   "api": {
-    "searchEndpoint": "/products",
+    "searchEndpoint": "/preprod/filterProducts",
+    "method": "GET",
     "queryParamKey": "keyword",
-    "responseListPath": "products",
+    "responseListPath": "data",
     "waitForResponseTimeout": 30000
   },
   "selectors": {
@@ -21,9 +22,10 @@
   "validation": {
     "expectedMinResults": 1,
     "resultFieldsToCheck": [
-      "title",
-      "name",
-      "description"
+      "productName",
+      "brand.brandName",
+      "categoryName",
+      "productSpecification"
     ]
   },
   "playwright": {

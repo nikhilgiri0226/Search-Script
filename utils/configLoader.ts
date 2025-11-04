@@ -6,6 +6,7 @@ export interface FrameworkConfig {
   baseURL: string;
   api: {
     searchEndpoint: string;
+    method?: string;
     queryParamKey?: string;
     responseListPath?: string;
     waitForResponseTimeout?: number;
