@@ -100,23 +100,63 @@ test.describe('Search functionality validation', () => {
 
         const searchInput = page.locator(selectors.searchInput);
         await searchInput.waitFor({ state: 'visible', timeout: timeouts.element });
+        await searchInput.click({ timeout: timeouts.element });
         await searchInput.fill('');
-        await searchInput.fill(normalizedKeyword, { timeout: timeouts.element });
 
-        const responsePromise = page.waitForResponse(
-          (response) => searchEndpointMatcher(response),
-          { timeout: api.waitForResponseTimeout ?? timeouts.navigation }
-        );
+        const endpointPredicate = (response: Response): boolean => {
+          if (!searchEndpointMatcher(response)) {
+            return false;
+          }
+
+          const urlString = response.url();
+          try {
+            const parsedUrl = new URL(urlString);
+            const paramKey = api.queryParamKey ?? 'keyword';
+            const paramValue = parsedUrl.searchParams.get(paramKey);
+            if (paramValue && paramValue.toLowerCase().includes(normalizedKeyword.toLowerCase())) {
+              return true;
+            }
+          } catch (error) {
+            // Ignore URL parsing errors for non-HTTP(s) URLs.
+          }
+
+          const postData = response.request().postData();
+          if (postData) {
+            try {
+              const parsedBody = JSON.parse(postData);
+              const paramKey = api.queryParamKey ?? 'keyword';
+              const value = parsedBody?.[paramKey];
+              if (typeof value === 'string' && value.toLowerCase().includes(normalizedKeyword.toLowerCase())) {
+                return true;
+              }
+            } catch (error) {
+              // Non-JSON bodies are ignored.
+            }
+          }
+
+          return !api.queryParamKey;
+        };
+
+        const responsePromise = page.waitForResponse(endpointPredicate, {
+          timeout: api.waitForResponseTimeout ?? timeouts.navigation,
+        });
+
+        await searchInput.type(normalizedKeyword, { delay: 15, timeout: timeouts.element });
 
         const start = Date.now();
+        let response: Response;
 
         if (selectors.searchSubmit && selectors.searchSubmit.trim().length > 0) {
-          await page.locator(selectors.searchSubmit).click({ timeout: timeouts.element });
+          [response] = await Promise.all([
+            responsePromise,
+            page.locator(selectors.searchSubmit).click({ timeout: timeouts.element }),
+          ]);
         } else {
-          await page.keyboard.press('Enter');
+          [response] = await Promise.all([
+            responsePromise,
+            searchInput.press('Enter'),
+          ]);
         }
-
-        const response = await responsePromise;
         responseTimeMs = Date.now() - start;
         statusCode = response.status();
         expect(statusCode, 'API response status should be 200').toBe(200);
