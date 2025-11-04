@@ -1,0 +1,47 @@
+{
+  "environment": "local",
+  "baseURL": "https://www.airportappliance.com/",
+  "api": {
+    "searchEndpoint": "/preprod/filterProducts",
+    "method": "GET",
+    "queryParamKey": "keyword",
+    "responseListPath": "data",
+    "waitForResponseTimeout": 30000,
+    "delayBetweenRequestsMs": 500
+  },
+  "selectors": {
+    "searchInput": "input[placeholder*='Search for Product']",
+    "searchSubmit": "",
+    "searchResultItems": ".product-card",
+    "productTitle": ".product-card__title",
+    "productDescription": ".product-card__description"
+  },
+  "timeouts": {
+    "navigation": 30000,
+    "element": 10000
+  },
+  "validation": {
+    "expectedMinResults": 1,
+    "resultFieldsToCheck": [
+      "productName",
+      "brand.brandName",
+      "categoryName",
+      "productSpecification"
+    ]
+  },
+  "playwright": {
+    "headless": true,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "retries": 1,
+    "workers": 1,
+    "reporter": "html",
+    "video": "off",
+    "trace": "retain-on-failure"
+  },
+  "results": {
+    "outputPath": "results/results.csv"
+  }
+}
