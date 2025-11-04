@@ -1,0 +1,32 @@
+{
+  "environment": "prod",
+  "environments": {
+    "prod": {
+      "name": "prod-api",
+      "baseUrl": "https://ezzn5xede7.execute-api.us-west-1.amazonaws.com/prod-api",
+      "defaultParams": {
+        "limit": 10
+      }
+    },
+    "nonProd": {
+      "name": "nonprod-api",
+      "baseUrl": "https://ezzn5xede7.execute-api.us-west-1.amazonaws.com/nonprod-api",
+      "defaultParams": {
+        "limit": 10
+      }
+    }
+  },
+  "api": {
+    "endpoint": "/filterProducts",
+    "timeoutMs": 10000,
+    "delayBetweenCallsMs": 500,
+    "expectedStatusCodes": [200, 201]
+  },
+  "playwright": {
+    "headless": true,
+    "timeoutMs": 30000,
+    "expectTimeoutMs": 5000,
+    "retries": 0,
+    "reporter": "html"
+  }
+}

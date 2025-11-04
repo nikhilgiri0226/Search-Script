@@ -1,0 +1,6 @@
+{
+  "queries": [
+    { "id": "TST_001", "category": "Refrigerators", "keyword": "refrigerator" },
+    { "id": "TST_002", "category": "Dishwashers", "keyword": "bosch dishwasher" }
+  ]
+}
