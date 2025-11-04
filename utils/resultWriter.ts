@@ -3,6 +3,7 @@ import path from 'path';
 
 export interface ResultRecord {
   testId: number;
+  category: string;
   keyword: string;
   statusCode: number;
   responseTimeMs: number;
@@ -16,6 +17,7 @@ export interface ResultRecord {
 const CSV_HEADER = [
   'timestamp',
   'test_id',
+  'category',
   'keyword',
   'status_code',
   'response_time_ms',
@@ -57,6 +59,7 @@ export function appendResult(filePath: string, record: ResultRecord): void {
   const row = [
     timestamp,
     record.testId,
+    record.category,
     record.keyword,
     record.statusCode,
     record.responseTimeMs,

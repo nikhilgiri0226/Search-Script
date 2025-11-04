@@ -10,6 +10,7 @@ export interface FrameworkConfig {
     queryParamKey?: string;
     responseListPath?: string;
     waitForResponseTimeout?: number;
+    delayBetweenRequestsMs?: number;
   };
   selectors: {
     searchInput: string;
@@ -43,8 +44,13 @@ export interface FrameworkConfig {
   };
 }
 
+export interface SearchQuery {
+  category: string;
+  keyword: string;
+}
+
 export interface SearchQueriesConfig {
-  queries: string[];
+  queries: SearchQuery[];
 }
 
 const CONFIG_ROOT = path.resolve(__dirname, '..');
@@ -80,11 +86,18 @@ export function loadFrameworkConfig(configPath: string = DEFAULT_CONFIG_PATH): F
   return cachedConfig;
 }
 
-export function loadSearchQueries(queriesPath: string = DEFAULT_SEARCH_QUERIES_PATH): string[] {
+export function loadSearchQueries(queriesPath: string = DEFAULT_SEARCH_QUERIES_PATH): SearchQuery[] {
   if (!cachedQueries) {
     cachedQueries = readJsonFile<SearchQueriesConfig>(queriesPath);
     if (!Array.isArray(cachedQueries.queries)) {
       throw new Error(`Invalid search queries file at ${queriesPath}: missing "queries" array.`);
+    }
+    for (const entry of cachedQueries.queries) {
+      if (!entry || typeof entry.category !== 'string' || typeof entry.keyword !== 'string') {
+        throw new Error(
+          `Invalid search query entry in ${queriesPath}. Each query must have "category" and "keyword" strings.`
+        );
+      }
     }
   }
   return cachedQueries.queries;

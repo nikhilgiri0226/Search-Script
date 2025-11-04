@@ -6,7 +6,8 @@
     "method": "GET",
     "queryParamKey": "keyword",
     "responseListPath": "data",
-    "waitForResponseTimeout": 30000
+    "waitForResponseTimeout": 30000,
+    "delayBetweenRequestsMs": 500
   },
   "selectors": {
     "searchInput": "input[type='search']",

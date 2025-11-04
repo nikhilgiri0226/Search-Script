@@ -38,16 +38,56 @@ const searchEndpointMatcher = (response: Response): boolean => {
 
 let testCounter = 0;
 
+const toTokens = (text: string): string[] =>
+  text
+    .toLowerCase()
+    .split(/[^a-z0-9]+/g)
+    .map((token) => token.trim())
+    .filter(Boolean);
+
+const recordContainsToken = (record: Record<string, unknown>, token: string): boolean => {
+  const productName = typeof record.productName === 'string' ? record.productName.toLowerCase() : '';
+  const categoryName = typeof record.categoryName === 'string' ? record.categoryName.toLowerCase() : '';
+
+  if (productName.includes(token) || categoryName.includes(token)) {
+    return true;
+  }
+
+  return false;
+};
+
+const itemMatchesCategoryTokens = (item: unknown, tokens: string[]): boolean => {
+  if (tokens.length === 0) {
+    return true;
+  }
+
+  if (typeof item === 'string') {
+    const normalized = item.toLowerCase();
+    return tokens.some((token) => normalized.includes(token));
+  }
+
+  if (item && typeof item === 'object') {
+    const record = item as Record<string, unknown>;
+    if (tokens.some((token) => recordContainsToken(record, token))) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 test.beforeAll(() => {
   initializeResultsFile(results.outputPath);
 });
 
 test.describe('Search functionality validation', () => {
-  for (const keyword of searchQueries) {
-    test(`should return matching results for "${keyword}"`, async ({ page }, testInfo) => {
+  for (const { category, keyword } of searchQueries) {
+    test(`should return matching results for ${category}: "${keyword}"`, async ({ page }, testInfo) => {
       testCounter += 1;
 
       const normalizedKeyword = keyword.trim();
+      const normalizedCategory = category.trim();
+      const categoryTokens = toTokens(normalizedCategory);
 
       let statusCode = 0;
       let responseTimeMs = 0;
@@ -103,6 +143,11 @@ test.describe('Search functionality validation', () => {
 
         expect(apiKeywordValidation, 'Every API result should match the keyword in one of the configured fields').toBeTruthy();
 
+        const apiCategoryValidation =
+          actualResults === 0 || responseResults.every((item) => itemMatchesCategoryTokens(item, categoryTokens));
+
+        expect(apiCategoryValidation, 'Every API result should align with the configured category tokens').toBeTruthy();
+
         const resultItems = page.locator(selectors.searchResultItems);
         await expect(resultItems.first()).toBeVisible({ timeout: timeouts.element });
 
@@ -112,6 +157,7 @@ test.describe('Search functionality validation', () => {
         );
 
         const uiKeywordChecks: boolean[] = [];
+        const uiCategoryChecks: boolean[] = [];
         for (let index = 0; index < uiCount; index += 1) {
           const item = resultItems.nth(index);
           const titleText = selectors.productTitle
@@ -122,14 +168,17 @@ test.describe('Search functionality validation', () => {
             : '';
           const combinedText = `${titleText} ${descriptionText}`.toLowerCase();
           uiKeywordChecks.push(combinedText.includes(normalizedKeyword.toLowerCase()));
+          uiCategoryChecks.push(categoryTokens.length === 0 || categoryTokens.some((token) => combinedText.includes(token)));
         }
 
         expect(uiKeywordChecks.every(Boolean), 'Every UI item should include the keyword in title or description').toBeTruthy();
+        expect(uiCategoryChecks.every(Boolean), 'Every UI item should align with the configured category tokens').toBeTruthy();
 
         validationPassed = true;
       } finally {
         appendResult(results.outputPath, {
           testId: testCounter,
+          category: normalizedCategory,
           keyword: normalizedKeyword,
           statusCode,
           responseTimeMs,
@@ -143,6 +192,7 @@ test.describe('Search functionality validation', () => {
           await testInfo.attach('search-debug', {
             body: JSON.stringify(
               {
+                category: normalizedCategory,
                 keyword: normalizedKeyword,
                 statusCode,
                 responseTimeMs,
@@ -154,6 +204,11 @@ test.describe('Search functionality validation', () => {
             ),
             contentType: 'application/json',
           });
+        }
+
+        const delay = api.delayBetweenRequestsMs ?? 500;
+        if (delay > 0) {
+          await page.waitForTimeout(delay);
         }
       }
     });

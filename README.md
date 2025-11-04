@@ -5,7 +5,7 @@ End-to-end Playwright + TypeScript framework for validating configurable e-comme
 ## Project Structure
 
 - `config/config.json` – Global framework settings (base URL, selectors, API metadata, timeouts, Playwright options, output paths).
-- `test-data/search_queries.json` – List of keywords to exercise search; add/remove items to update coverage.
+- `test-data/search_queries.json` – List of `{ category, keyword }` pairs to exercise search; add/remove items to update coverage.
 - `tests/search.spec.ts` – Main test spec iterating over configured keywords, validating API and UI responses, exporting results to CSV.
 - `utils/` – Shared helpers for loading configuration (`configLoader.ts`), JSON traversal (`jsonUtils.ts`), and CSV results management (`resultWriter.ts`).
 - `results/results.csv` – Generated per test run; contains timestamped execution summary for each keyword.
@@ -22,9 +22,11 @@ Update `config/config.json` to point at any deployed environment:
 - `baseURL` – Root application URL under test.
 - `api` – Search endpoint metadata.
   - `searchEndpoint` – Partial URL string Playwright waits for (e.g., `/products`).
+  - `method` – HTTP verb to match when waiting for the API response (defaults to `GET`).
   - `responseListPath` – Dot-delimited path to the result array inside the JSON payload (e.g., `data.items`).
   - `queryParamKey` – Query string key for the keyword (informational).
   - `waitForResponseTimeout` – Max wait (ms) for the API response.
+  - `delayBetweenRequestsMs` – Optional throttle (ms) injected between searches to avoid overwhelming the endpoint.
 - `selectors` – CSS selectors for search input, optional submit button, result cards, title, and description. Adjust these when markup changes or to add filter elements.
 - `timeouts` – Navigation / element wait thresholds used across the suite.
 - `validation` – Expectations for minimum result count and which JSON fields should contain the keyword.
@@ -33,19 +35,18 @@ Update `config/config.json` to point at any deployed environment:
 
 ### Test data (search terms)
 
-Add, remove, or reorder search keywords within `test-data/search_queries.json`:
+Add, remove, or reorder category-keyword pairs within `test-data/search_queries.json`:
 
 ```json
 {
   "queries": [
-    "refrigerator",
-    "dishwasher",
-    "microwave"
+    { "category": "Refrigerators", "keyword": "refrigerator" },
+    { "category": "Dishwasher", "keyword": "bosch dishwasher" }
   ]
 }
 ```
 
-No code changes are required; the test spec reads this file at runtime.
+No code changes are required; the test spec reads this file at runtime. Each run enforces that at least one word from the configured category appears in every API result’s `productName` or `categoryName`, and in the UI tile text, alongside the keyword validation.
 
 ### Filters and UI variations
 
@@ -67,7 +68,7 @@ npx playwright install
 - Headed debug mode: `npm run test:headed`
 - View last HTML report: `npm run test:report`
 
-Each run recreates `results/results.csv` with the latest metrics (timestamp, test id, keyword, status code, response time, expected vs. actual counts, pass/fail, environment).
+Each run recreates `results/results.csv` with the latest metrics (timestamp, test id, category, keyword, status code, response time, expected vs. actual counts, pass/fail, environment).
 
 ## CI/CD Integration
 
@@ -93,7 +94,7 @@ npm test
 
 ## Output & Reporting
 
-- `results/results.csv` captures key metrics per keyword (timestamp, status, response time, expected/actual counts, validation outcome, environment).
+- `results/results.csv` captures key metrics per keyword (timestamp, category, status, response time, expected/actual counts, validation outcome, environment).
 - Additional artifacts (trace/video) can be enabled via the `playwright.trace` / `playwright.video` settings in `config.json` without modifying code.
 
 ## Extending the Framework
