@@ -10,7 +10,7 @@
     "delayBetweenRequestsMs": 500
   },
   "selectors": {
-    "searchInput": "input[type='search']",
+    "searchInput": "input[placeholder*='Search for Product']",
     "searchSubmit": "",
     "searchResultItems": ".product-card",
     "productTitle": ".product-card__title",
