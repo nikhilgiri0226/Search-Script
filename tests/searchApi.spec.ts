@@ -40,7 +40,7 @@ test.describe('Search API validation', () => {
   for (const [index, query] of searchQueries.entries()) {
     const testId = query.id ?? `TST_${String(index + 1).padStart(3, '0')}`;
 
-    test(`should validate API search results for keyword "${query.keyword}"`, async ({ request }) => {
+    test(`[${testId}] should validate API search results for keyword "${query.keyword}"`, async ({ request }) => {
       const testStart = Date.now();
       const url = `${environmentConfig.baseUrl}${projectConfig.api.endpoint}`;
 
