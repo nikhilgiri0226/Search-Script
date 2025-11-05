@@ -1,3 +1,0 @@
-Test ID,Timestamp,Environment,Keyword,Status,Response Time (ms),HTTP Status Code,Error Message,Test Duration (s)
-TST_001,2025-11-05T05:24:03.690Z,prod-api,refrigerator (Refrigerators),PASS,559,200,,0.57
-TST_002,2025-11-05T05:24:05.347Z,prod-api,bosch dishwasher (Dishwashers),PASS,1128,200,,1.13

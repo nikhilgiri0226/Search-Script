@@ -2,7 +2,7 @@
 
 ## Overview
 - Validates the search/filter API for a configurable e-commerce service using Playwright + TypeScript
-- Reads runtime configuration from JSON files, including environment-specific URLs, query parameters, and execution settings
+- Reads runtime configuration from JSON files, including environment-specific URLs, query parameters, relevance rules, and execution settings
 - Consumes search keywords and categories from external test data without touching the test code
 - Persists keyword-level results, timings, and diagnostics to timestamped CSV files under `results/`
 
@@ -31,8 +31,10 @@
   - `id`: optional custom test identifier; fallback uses `TST_###`
   - `category`: friendly category name used for validation
   - `keyword`: search keyword applied to the API call
-- `results/result_YYYYMMDD_HHMMSS.csv`
-  - Per-run log (one row per keyword) with execution metadata and outcome (PASS / FAIL / REVIEW)
+- `config/relevanceMap.json`
+  - Synonyms, related terms, and brand cues used to infer relevance when direct word matches are missing
+- `results/result_MM-DD-YYYY_HH:MM.csv`
+  - Per-run log (one row per keyword) with execution metadata and outcome (PASS / FAIL / REVIEW); older result files are cleared automatically at the start of each run
 
 ## Running Tests Locally
 - `npm test`
@@ -47,7 +49,7 @@
 ## Result Evaluation Logic
 - Ensures HTTP status is in the configured allow-list (200/201 by default)
 - Confirms payload structure (`success`, `msg`, `category`, `data[]`)
-- Validates each returned item contains at least one category word within `categoryName` or `productName`
+- Validates each returned item contains at least one category/keyword word (case/number insensitive), or a relevance-map synonym/related term, within `categoryName` or `productName`
 - Marks empty result sets as `REVIEW` (skips the test after logging) to highlight manual follow-up
 - Records response time, total test duration, and any failure messages in CSV output
 

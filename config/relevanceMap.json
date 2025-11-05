@@ -1,0 +1,93 @@
+{
+  "refrigerator": {
+    "synonyms": [
+      "fridge",
+      "freezer",
+      "icebox",
+      "mini fridge",
+      "wine cooler",
+      "beverage fridge",
+      "deep freezer",
+      "bar fridge",
+      "kegerator"
+    ],
+    "related": [
+      "ice",
+      "cold",
+      "chill",
+      "freezing",
+      "cooling",
+      "temperature control",
+      "frost free",
+      "energy efficient",
+      "smart cooling",
+      "ice maker"
+    ],
+    "brands": [
+      "bosch",
+      "whirlpool",
+      "samsung",
+      "lg",
+      "frigidaire",
+      "ge",
+      "maytag",
+      "kitchenaid",
+      "haier"
+    ],
+    "form_factors": [
+      "french door",
+      "side by side",
+      "top freezer",
+      "bottom freezer",
+      "counter depth",
+      "compact",
+      "built-in",
+      "undercounter",
+      "garage ready"
+    ],
+    "misspellings": [
+      "refridgerator",
+      "refrigirator",
+      "frige",
+      "fridg"
+    ]
+  },
+  "dishwasher": {
+    "synonyms": [
+      "dish washer",
+      "dish cleaning machine",
+      "kitchen dishwasher",
+      "built-in dishwasher",
+      "portable dishwasher"
+    ],
+    "related": [
+      "wash",
+      "sanitize",
+      "rinse",
+      "dry",
+      "quiet",
+      "stainless",
+      "silverware basket"
+    ],
+    "brands": [
+      "bosch",
+      "whirlpool",
+      "kitchenaid",
+      "ge",
+      "samsung",
+      "lg",
+      "maytag"
+    ],
+    "form_factors": [
+      "built-in",
+      "portable",
+      "drawer",
+      "countertop"
+    ],
+    "misspellings": [
+      "dishwaser",
+      "dishwisher",
+      "dish washer"
+    ]
+  }
+}

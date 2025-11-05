@@ -49,9 +49,29 @@ const escapeCsv = (value: string | number): string => {
   return strValue;
 };
 
+let resultsInitialised = false;
+
+const cleanupOldResults = (): void => {
+  if (!fs.existsSync(RESULTS_DIR)) {
+    return;
+  }
+
+  const entries = fs.readdirSync(RESULTS_DIR, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isFile() && /^result_.*\.csv$/i.test(entry.name)) {
+      fs.unlinkSync(path.join(RESULTS_DIR, entry.name));
+    }
+  }
+};
+
 const ensureResultsFile = (): void => {
   if (!fs.existsSync(RESULTS_DIR)) {
     fs.mkdirSync(RESULTS_DIR, { recursive: true });
+  }
+
+  if (!resultsInitialised) {
+    cleanupOldResults();
+    resultsInitialised = true;
   }
 
   if (!fs.existsSync(RESULTS_FILE)) {

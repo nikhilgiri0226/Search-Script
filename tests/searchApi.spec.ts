@@ -11,6 +11,16 @@ interface SearchQuery {
   keyword: string;
 }
 
+interface RelevanceEntry {
+  synonyms?: string[];
+  related?: string[];
+  brands?: string[];
+  form_factors?: string[];
+  misspellings?: string[];
+}
+
+type RelevanceMap = Record<string, RelevanceEntry>;
+
 const projectConfig = loadConfig();
 const environmentConfig = getActiveEnvironment();
 const queriesPath = path.resolve(__dirname, '..', 'test-data', 'search_queries.json');
@@ -26,6 +36,77 @@ const searchQueries = searchQueriesJson.queries ?? [];
 if (searchQueries.length === 0) {
   throw new Error('No search queries defined in test-data/search_queries.json');
 }
+
+const relevanceMapPath = path.resolve(__dirname, '..', 'config', 'relevanceMap.json');
+const relevanceMap: RelevanceMap = fs.existsSync(relevanceMapPath)
+  ? Object.fromEntries(
+      Object.entries(JSON.parse(fs.readFileSync(relevanceMapPath, 'utf-8')) as RelevanceMap).map(
+        ([key, value]) => [key.toLowerCase(), value]
+      )
+    )
+  : {};
+
+const normaliseToWords = (value: string): string[] =>
+  value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .map((word) => word.trim())
+    .filter(Boolean);
+
+const expandWordForms = (word: string): string[] => {
+  const forms = new Set<string>();
+  const trimmed = word.trim().toLowerCase();
+  if (!trimmed) {
+    return [];
+  }
+
+  forms.add(trimmed);
+
+  if (trimmed.endsWith('ies') && trimmed.length > 3) {
+    forms.add(`${trimmed.slice(0, -3)}y`);
+  }
+
+  if (trimmed.endsWith('es') && trimmed.length > 2) {
+    forms.add(trimmed.slice(0, -2));
+  }
+
+  if (trimmed.endsWith('s') && trimmed.length > 1) {
+    forms.add(trimmed.slice(0, -1));
+  }
+
+  return [...forms];
+};
+
+const wordsMatch = (a: string, b: string): boolean => {
+  const formsA = expandWordForms(a);
+  const formsB = expandWordForms(b);
+  return formsA.some((form) => formsB.includes(form));
+};
+
+const collectRelevanceWords = (word: string): string[] => {
+  const collected = new Set<string>();
+
+  for (const form of expandWordForms(word)) {
+    const entry = relevanceMap[form];
+    if (!entry) {
+      continue;
+    }
+
+    const categories = Object.values(entry).filter(Array.isArray) as string[][];
+
+    for (const list of categories) {
+      for (const term of list) {
+        for (const normalised of normaliseToWords(term)) {
+          if (!collected.has(normalised)) {
+            collected.add(normalised);
+          }
+        }
+      }
+    }
+  }
+
+  return [...collected];
+};
 
 test.describe('Search API validation', () => {
   test.afterEach(async () => {
@@ -75,49 +156,29 @@ test.describe('Search API validation', () => {
           status = 'REVIEW';
           errorMessage = 'No results returned; requires manual review.';
         } else {
-          const normaliseToWords = (value: string): string[] =>
-            value
-              .toLowerCase()
-              .split(/[^a-z0-9]+/)
-              .map((word) => word.trim())
-              .filter(Boolean);
+          const referenceWords = new Set<string>([
+            ...normaliseToWords(query.category),
+            ...normaliseToWords(query.keyword)
+          ]);
 
-          const expandWordForms = (word: string): string[] => {
-            const forms = new Set<string>();
-            const trimmed = word.trim();
-            if (!trimmed) {
-              return [];
+          const processedReferenceWords = new Set<string>();
+          const queue: string[] = [...referenceWords];
+
+          while (queue.length > 0) {
+            const current = queue.pop();
+            if (!current || processedReferenceWords.has(current)) {
+              continue;
             }
 
-            forms.add(trimmed);
+            processedReferenceWords.add(current);
 
-            if (trimmed.endsWith('ies') && trimmed.length > 3) {
-              forms.add(`${trimmed.slice(0, -3)}y`);
+            for (const relatedWord of collectRelevanceWords(current)) {
+              if (!referenceWords.has(relatedWord)) {
+                referenceWords.add(relatedWord);
+                queue.push(relatedWord);
+              }
             }
-
-            if (trimmed.endsWith('es') && trimmed.length > 2) {
-              forms.add(trimmed.slice(0, -2));
-            }
-
-            if (trimmed.endsWith('s') && trimmed.length > 1) {
-              forms.add(trimmed.slice(0, -1));
-            }
-
-            return [...forms];
-          };
-
-          const wordsMatch = (a: string, b: string): boolean => {
-            const formsA = expandWordForms(a);
-            const formsB = expandWordForms(b);
-            return formsA.some((form) => formsB.includes(form));
-          };
-
-          const referenceWords = Array.from(
-            new Set([
-              ...normaliseToWords(query.category),
-              ...normaliseToWords(query.keyword)
-            ])
-          );
+          }
 
           const itemMatchesCategory = (item: Record<string, unknown>): boolean => {
             const categoryName = String(item.categoryName ?? '');
@@ -127,7 +188,7 @@ test.describe('Search API validation', () => {
               ...normaliseToWords(productName)
             ];
 
-            return referenceWords.some((categoryWord) =>
+            return Array.from(referenceWords).some((categoryWord) =>
               itemWords.some((itemWord) => wordsMatch(categoryWord, itemWord))
             );
           };
