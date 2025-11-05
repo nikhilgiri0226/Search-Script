@@ -77,16 +77,22 @@ test.describe('Search API validation', () => {
           status = 'REVIEW';
           errorMessage = 'No results returned; requires manual review.';
         } else {
-          const categoryWords = query.category
-            .split(/\s+/)
-            .map((word) => word.trim().toLowerCase())
-            .filter(Boolean);
+          const normaliseToWords = (value: string): string[] =>
+            value
+              .toLowerCase()
+              .split(/[^a-z0-9]+/)
+              .map((word) => word.trim())
+              .filter(Boolean);
+
+          const categoryWords = normaliseToWords(query.category);
 
           const itemMatchesCategory = (item: Record<string, unknown>): boolean => {
-            const categoryName = String(item.categoryName ?? '').toLowerCase();
-            const productName = String(item.productName ?? '').toLowerCase();
-            const tokenise = (value: string) => value.split(/\s+/).filter(Boolean);
-            const itemWordSet = new Set<string>([...tokenise(categoryName), ...tokenise(productName)]);
+            const categoryName = String(item.categoryName ?? '');
+            const productName = String(item.productName ?? '');
+            const itemWordSet = new Set<string>([
+              ...normaliseToWords(categoryName),
+              ...normaliseToWords(productName)
+            ]);
             return categoryWords.some((word) => itemWordSet.has(word));
           };
 
@@ -94,7 +100,12 @@ test.describe('Search API validation', () => {
 
           if (mismatches.length > 0) {
             status = 'FAIL';
-            errorMessage = `Found ${mismatches.length} item(s) without category word match.`;
+            const sample = mismatches.slice(0, 3).map((item) => {
+              const categoryName = String(item.categoryName ?? '');
+              const productName = String(item.productName ?? '');
+              return `{categoryName: "${categoryName}", productName: "${productName}"}`;
+            });
+            errorMessage = `Found ${mismatches.length} item(s) without category word match. Sample: ${sample.join(', ')}`;
           } else {
             status = 'PASS';
           }
