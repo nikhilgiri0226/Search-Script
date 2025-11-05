@@ -14,7 +14,17 @@ export interface TestResultRow {
 }
 
 const RESULTS_DIR = path.resolve(__dirname, '..', 'results');
-const RESULTS_FILE = path.join(RESULTS_DIR, 'results.csv');
+
+const formatDateComponent = (value: number): string => value.toString().padStart(2, '0');
+
+const RUN_STAMP = (() => {
+  const now = new Date();
+  const datePart = `${now.getFullYear()}${formatDateComponent(now.getMonth() + 1)}${formatDateComponent(now.getDate())}`;
+  const timePart = `${formatDateComponent(now.getHours())}${formatDateComponent(now.getMinutes())}${formatDateComponent(now.getSeconds())}`;
+  return `${datePart}_${timePart}`;
+})();
+
+const RESULTS_FILE = path.join(RESULTS_DIR, `result_${RUN_STAMP}.csv`);
 
 const HEADER = [
   'Test ID',

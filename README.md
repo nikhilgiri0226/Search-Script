@@ -4,7 +4,7 @@
 - Validates the search/filter API for a configurable e-commerce service using Playwright + TypeScript
 - Reads runtime configuration from JSON files, including environment-specific URLs, query parameters, and execution settings
 - Consumes search keywords and categories from external test data without touching the test code
-- Persists keyword-level results, timings, and diagnostics to `results/results.csv` for auditability
+- Persists keyword-level results, timings, and diagnostics to timestamped CSV files under `results/`
 
 ## Prerequisites
 - Node.js 18+
@@ -31,8 +31,8 @@
   - `id`: optional custom test identifier; fallback uses `TST_###`
   - `category`: friendly category name used for validation
   - `keyword`: search keyword applied to the API call
-- `results/results.csv`
-  - Cumulative log (one row per keyword) with execution metadata and outcome (PASS / FAIL / REVIEW)
+- `results/result_YYYYMMDD_HHMMSS.csv`
+  - Per-run log (one row per keyword) with execution metadata and outcome (PASS / FAIL / REVIEW)
 
 ## Running Tests Locally
 - `npm test`
@@ -42,7 +42,7 @@
 ## CI/CD Usage
 - Install dependencies (`npm ci` preferred) and Playwright binaries (`npx playwright install --with-deps` for Debian-based runners)
 - Set `TEST_ENVIRONMENT`, `PW_HEADLESS`, or other env vars as needed for the pipeline
-- Collect CSV logs from `results/results.csv` as an artifact for reporting
+- Collect run-specific CSV logs from `results/result_*.csv` as artifacts for reporting
 
 ## Result Evaluation Logic
 - Ensures HTTP status is in the configured allow-list (200/201 by default)

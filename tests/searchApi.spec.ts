@@ -28,8 +28,6 @@ if (searchQueries.length === 0) {
 }
 
 test.describe('Search API validation', () => {
-  test.describe.configure({ mode: 'serial' });
-
   test.afterEach(async () => {
     const delay = projectConfig.api.delayBetweenCallsMs;
     if (delay > 0) {
