@@ -7,3 +7,5 @@ TST_001,2025-11-05T00:28:50.508Z,prod-api,refrigerator (Refrigerators),PASS,430,
 TST_002,2025-11-05T00:28:51.109Z,prod-api,bosch dishwasher (Dishwashers),PASS,74,200,,0.08
 TST_001,2025-11-05T00:37:45.018Z,prod-api,refrigerator (Refrigerators),PASS,542,200,,0.55
 TST_002,2025-11-05T00:37:46.203Z,prod-api,bosch dishwasher (Dishwashers),PASS,664,200,,0.67
+TST_001,2025-11-05T00:50:50.911Z,prod-api,refrigerator (Refrigerators),PASS,566,200,,0.57
+TST_002,2025-11-05T00:50:52.431Z,prod-api,bosch dishwasher (Dishwashers),PASS,999,200,,1

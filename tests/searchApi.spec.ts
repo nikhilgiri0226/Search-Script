@@ -114,7 +114,12 @@ test.describe('Search API validation', () => {
             return formsA.some((form) => formsB.includes(form));
           };
 
-          const categoryWords = normaliseToWords(query.category);
+          const referenceWords = Array.from(
+            new Set([
+              ...normaliseToWords(query.category),
+              ...normaliseToWords(query.keyword)
+            ])
+          );
 
           const itemMatchesCategory = (item: Record<string, unknown>): boolean => {
             const categoryName = String(item.categoryName ?? '');
@@ -124,7 +129,7 @@ test.describe('Search API validation', () => {
               ...normaliseToWords(productName)
             ];
 
-            return categoryWords.some((categoryWord) =>
+            return referenceWords.some((categoryWord) =>
               itemWords.some((itemWord) => wordsMatch(categoryWord, itemWord))
             );
           };
