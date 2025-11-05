@@ -84,16 +84,49 @@ test.describe('Search API validation', () => {
               .map((word) => word.trim())
               .filter(Boolean);
 
+          const expandWordForms = (word: string): string[] => {
+            const forms = new Set<string>();
+            const trimmed = word.trim();
+            if (!trimmed) {
+              return [];
+            }
+
+            forms.add(trimmed);
+
+            if (trimmed.endsWith('ies') && trimmed.length > 3) {
+              forms.add(`${trimmed.slice(0, -3)}y`);
+            }
+
+            if (trimmed.endsWith('es') && trimmed.length > 2) {
+              forms.add(trimmed.slice(0, -2));
+            }
+
+            if (trimmed.endsWith('s') && trimmed.length > 1) {
+              forms.add(trimmed.slice(0, -1));
+            }
+
+            return [...forms];
+          };
+
+          const wordsMatch = (a: string, b: string): boolean => {
+            const formsA = expandWordForms(a);
+            const formsB = expandWordForms(b);
+            return formsA.some((form) => formsB.includes(form));
+          };
+
           const categoryWords = normaliseToWords(query.category);
 
           const itemMatchesCategory = (item: Record<string, unknown>): boolean => {
             const categoryName = String(item.categoryName ?? '');
             const productName = String(item.productName ?? '');
-            const itemWordSet = new Set<string>([
+            const itemWords = [
               ...normaliseToWords(categoryName),
               ...normaliseToWords(productName)
-            ]);
-            return categoryWords.some((word) => itemWordSet.has(word));
+            ];
+
+            return categoryWords.some((categoryWord) =>
+              itemWords.some((itemWord) => wordsMatch(categoryWord, itemWord))
+            );
           };
 
           const mismatches = data.filter((item) => !itemMatchesCategory(item));
