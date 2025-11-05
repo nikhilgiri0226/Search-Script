@@ -19,9 +19,12 @@ const formatDateComponent = (value: number): string => value.toString().padStart
 
 const RUN_STAMP = (() => {
   const now = new Date();
-  const datePart = `${now.getFullYear()}${formatDateComponent(now.getMonth() + 1)}${formatDateComponent(now.getDate())}`;
-  const timePart = `${formatDateComponent(now.getHours())}${formatDateComponent(now.getMinutes())}${formatDateComponent(now.getSeconds())}`;
-  return `${datePart}_${timePart}`;
+  const month = formatDateComponent(now.getMonth() + 1);
+  const day = formatDateComponent(now.getDate());
+  const year = now.getFullYear();
+  const hour = formatDateComponent(now.getHours());
+  const minute = formatDateComponent(now.getMinutes());
+  return `${month}-${day}-${year}_${hour}:${minute}`;
 })();
 
 const RESULTS_FILE = path.join(RESULTS_DIR, `result_${RUN_STAMP}.csv`);
