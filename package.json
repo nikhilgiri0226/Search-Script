@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Configurable Playwright + TypeScript project for search API validation",
   "scripts": {
-    "test": "playwright test",
-    "test:headed": "PW_HEADLESS=false playwright test",
+    "test": "node scripts/run-tests.js",
+    "test:headed": "PW_HEADLESS=false node scripts/run-tests.js",
     "lint": "echo 'No lint configured'"
   },
   "author": "",

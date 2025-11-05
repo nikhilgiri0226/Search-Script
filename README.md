@@ -34,10 +34,10 @@
 - `config/relevanceMap.json`
   - Synonyms, related terms, and brand cues used to infer relevance when direct word matches are missing
 - `results/result_MM-DD-YYYY_HH:MM.csv`
-  - Per-run log (one row per keyword) with execution metadata and outcome (PASS / FAIL / REVIEW); older result files are cleared automatically at the start of each run
+  - Per-run log (one row per keyword) with execution metadata and outcome (PASS / FAIL / REVIEW); prior CSVs remain untouched for historical review
 
 ## Running Tests Locally
-- `npm test`
+- `npm test` (wraps Playwright via `scripts/run-tests.js`, stamping each run with a shared `RESULT_RUN_STAMP`)
 - Optional headed run: `npm run test:headed`
 - Override environment without editing JSON: `TEST_ENVIRONMENT=nonProd npm test`
 

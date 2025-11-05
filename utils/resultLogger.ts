@@ -17,7 +17,7 @@ const RESULTS_DIR = path.resolve(__dirname, '..', 'results');
 
 const formatDateComponent = (value: number): string => value.toString().padStart(2, '0');
 
-const RUN_STAMP = (() => {
+const deriveRunStamp = (): string => {
   const now = new Date();
   const month = formatDateComponent(now.getMonth() + 1);
   const day = formatDateComponent(now.getDate());
@@ -25,7 +25,9 @@ const RUN_STAMP = (() => {
   const hour = formatDateComponent(now.getHours());
   const minute = formatDateComponent(now.getMinutes());
   return `${month}-${day}-${year}_${hour}:${minute}`;
-})();
+};
+
+const RUN_STAMP = (process.env.RESULT_RUN_STAMP?.trim() || '') || deriveRunStamp();
 
 const RESULTS_FILE = path.join(RESULTS_DIR, `result_${RUN_STAMP}.csv`);
 
