@@ -60,7 +60,8 @@
     "workers": 1,
     "maxInFlightRequests": 5,
     "batchSize": 100,
-    "batchPauseMs": 60000
+    "batchPauseMs": 60000,
+    "queryLimit": null
   },
   "results": {
     "retainDays": 30,

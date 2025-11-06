@@ -46,11 +46,40 @@ const searchQueriesRaw = fs.readFileSync(queriesPath, "utf-8");
 const searchQueriesJson = JSON.parse(searchQueriesRaw) as {
   queries: SearchQuery[];
 };
-const searchQueries = searchQueriesJson.queries ?? [];
+const allSearchQueries = searchQueriesJson.queries ?? [];
 
-if (searchQueries.length === 0) {
+if (allSearchQueries.length === 0) {
   throw new Error("No search queries defined in test-data/search_queries.json");
 }
+
+const resolveQueryLimit = (limit: unknown): number | null => {
+  if (typeof limit !== "number" || !Number.isFinite(limit)) {
+    return null;
+  }
+  const integer = Math.trunc(limit);
+  return integer > 0 ? integer : null;
+};
+
+const effectiveQueryLimit = resolveQueryLimit(runnerSettings.queryLimit);
+
+const searchQueries = (() => {
+  if (effectiveQueryLimit === null) {
+    return allSearchQueries;
+  }
+
+  const limited = allSearchQueries.slice(
+    0,
+    Math.min(effectiveQueryLimit, allSearchQueries.length),
+  );
+
+  if (limited.length < allSearchQueries.length) {
+    console.info(
+      `[runner] queryLimit applied: processing first ${limited.length} of ${allSearchQueries.length} queries.`,
+    );
+  }
+
+  return limited;
+})();
 
 const relevanceMapPath = path.resolve(
   __dirname,

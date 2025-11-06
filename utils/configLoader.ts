@@ -58,6 +58,7 @@ export interface RunnerConfig {
   maxInFlightRequests: number;
   batchSize: number;
   batchPauseMs: number;
+  queryLimit?: number | null;
 }
 
 export interface ResultsConfig {
@@ -115,7 +116,8 @@ const DEFAULT_RUNNER: RunnerConfig = {
   workers: 1,
   maxInFlightRequests: 5,
   batchSize: 100,
-  batchPauseMs: 60000
+  batchPauseMs: 60000,
+  queryLimit: null
 };
 
 const DEFAULT_PAGINATION: PaginationConfig = {
@@ -197,7 +199,11 @@ export const loadConfig = (configPath = path.resolve(__dirname, '..', 'config', 
       workers: parsed.runner.workers ?? DEFAULT_RUNNER.workers,
       maxInFlightRequests: parsed.runner.maxInFlightRequests ?? DEFAULT_RUNNER.maxInFlightRequests,
       batchSize: parsed.runner.batchSize ?? DEFAULT_RUNNER.batchSize,
-      batchPauseMs: parsed.runner.batchPauseMs ?? DEFAULT_RUNNER.batchPauseMs
+      batchPauseMs: parsed.runner.batchPauseMs ?? DEFAULT_RUNNER.batchPauseMs,
+      queryLimit:
+        parsed.runner.queryLimit !== undefined
+          ? parsed.runner.queryLimit
+          : DEFAULT_RUNNER.queryLimit
     };
   }
 

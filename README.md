@@ -47,6 +47,7 @@
   - `runner.workers`: Playwright worker count (enables per-keyword parallelism)
   - `runner.maxInFlightRequests`: semaphore limit to cap concurrent API calls per worker
   - `runner.batchSize` / `runner.batchPauseMs`: insert backpressure pauses after each batch of keywords
+  - `runner.queryLimit`: optional cap on the number of keywords processed per run (null = all)
   - `results.retainDays` / `results.retainRuns`: automatic pruning window for legacy CSV/XLSX artifacts
   - `alerts.email` / `alerts.slack`: toggleable post-run notifications with placeholder connection details
 - `test-data/search_queries.json`
