@@ -233,7 +233,7 @@ test.describe('Search API validation', () => {
 
       const testDurationSeconds = Number(((Date.now() - testStart) / 1000).toFixed(2));
 
-      appendResult({
+      await appendResult({
         testId,
         timestamp: new Date().toISOString(),
         environment: environmentConfig.name,

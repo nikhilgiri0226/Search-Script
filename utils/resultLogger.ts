@@ -142,15 +142,16 @@ const writeWorkbook = async (): Promise<void> => {
   await workbook.xlsx.writeFile(RESULTS_XLSX_FILE);
 };
 
-const queueWorkbookWrite = (): void => {
-  workbookWritePromise = workbookWritePromise
-    .then(() => writeWorkbook())
-    .catch((error) => {
-      console.error('Failed to write XLSX results', error);
-    });
+const queueWorkbookWrite = (): Promise<void> => {
+  workbookWritePromise = workbookWritePromise.then(() => writeWorkbook());
+  workbookWritePromise = workbookWritePromise.catch((error) => {
+    console.error('Failed to write XLSX results', error);
+    throw error;
+  });
+  return workbookWritePromise;
 };
 
-export const appendResult = (row: TestResultRow): void => {
+export const appendResult = async (row: TestResultRow): Promise<void> => {
   ensureResultsFile();
 
   rows.push(row);
@@ -180,7 +181,7 @@ export const appendResult = (row: TestResultRow): void => {
 
   fs.appendFileSync(RESULTS_FILE, `${line}\n`, 'utf-8');
 
-  queueWorkbookWrite();
+  await queueWorkbookWrite();
 };
 
 export const getResultsFilePath = (): string => RESULTS_FILE;
