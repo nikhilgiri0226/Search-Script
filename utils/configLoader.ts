@@ -7,13 +7,6 @@ export interface EnvironmentConfig {
   defaultParams: Record<string, string | number | boolean>;
 }
 
-export interface ApiConfig {
-  endpoint: string;
-  timeoutMs: number;
-  delayBetweenCallsMs: number;
-  expectedStatusCodes: number[];
-}
-
 export type ReporterSetting = string | Array<string | [string, Record<string, unknown>]>;
 
 export interface PlaywrightConfigSettings {
@@ -25,6 +18,32 @@ export interface PlaywrightConfigSettings {
 }
 
 export type StatusCategory = 'PASS' | 'PASS_REVIEW' | 'FAIL' | 'REVIEW';
+
+export interface PaginationResponseFieldConfig {
+  currentPage?: string;
+  totalPages?: string;
+  hasNextPage?: string;
+  totalCount?: string;
+}
+
+export interface PaginationConfig {
+  mode: 'firstPage' | 'allPages';
+  pageParam?: string;
+  startPage?: number;
+  maxPages?: number;
+  pageSizeParam?: string;
+  pageSize?: number | null;
+  pauseBetweenPagesMs?: number;
+  responseFields?: PaginationResponseFieldConfig;
+}
+
+export interface ApiConfig {
+  endpoint: string;
+  timeoutMs: number;
+  delayBetweenCallsMs: number;
+  expectedStatusCodes: number[];
+  pagination?: PaginationConfig;
+}
 
 export interface QualityConfig {
   partialPassPercentage: number;
@@ -79,6 +98,65 @@ export interface ProjectConfig {
   alerts?: AlertsConfig;
 }
 
+const DEFAULT_QUALITY: QualityConfig = {
+  partialPassPercentage: 90,
+  fullPassPercentage: 100,
+  statusColors: {
+    PASS: '#C8E6C9',
+    PASS_REVIEW: '#FFF9C4',
+    FAIL: '#FFCDD2',
+    REVIEW: '#FFE0B2'
+  },
+  failStrategy: 'always',
+  failThresholdPercent: 10
+};
+
+const DEFAULT_RUNNER: RunnerConfig = {
+  workers: 1,
+  maxInFlightRequests: 5,
+  batchSize: 100,
+  batchPauseMs: 60000
+};
+
+const DEFAULT_PAGINATION: PaginationConfig = {
+  mode: 'firstPage',
+  pageParam: 'page',
+  startPage: 1,
+  maxPages: 5,
+  pageSizeParam: undefined,
+  pageSize: null,
+  pauseBetweenPagesMs: 0,
+  responseFields: {
+    currentPage: 'pagination.currentPage',
+    totalPages: 'pagination.totalPages',
+    hasNextPage: 'pagination.hasNextPage',
+    totalCount: 'pagination.totalCount'
+  }
+};
+
+const DEFAULT_RESULTS: ResultsConfig = {
+  retainDays: 0,
+  retainRuns: 20
+};
+
+const DEFAULT_ALERTS: AlertsConfig = {
+  email: {
+    enabled: false,
+    recipients: [],
+    smtpHost: '',
+    smtpPort: 587,
+    smtpUser: '',
+    smtpPassword: '',
+    from: '',
+    subject: 'Search API Test Summary'
+  },
+  slack: {
+    enabled: false,
+    webhookUrl: '',
+    channel: ''
+  }
+};
+
 let cachedConfig: ProjectConfig | null = null;
 
 export const loadConfig = (configPath = path.resolve(__dirname, '..', 'config', 'config.json')): ProjectConfig => {
@@ -89,49 +167,6 @@ export const loadConfig = (configPath = path.resolve(__dirname, '..', 'config', 
   const raw = fs.readFileSync(configPath, 'utf-8');
   const parsed = JSON.parse(raw) as ProjectConfig;
 
-  const defaultQuality: QualityConfig = {
-    partialPassPercentage: 90,
-    fullPassPercentage: 100,
-    statusColors: {
-      PASS: '#C8E6C9',
-      PASS_REVIEW: '#FFF9C4',
-      FAIL: '#FFCDD2',
-      REVIEW: '#FFE0B2'
-    },
-    failStrategy: 'always',
-    failThresholdPercent: 10
-  };
-
-  const defaultRunner: RunnerConfig = {
-    workers: 1,
-    maxInFlightRequests: 5,
-    batchSize: 100,
-    batchPauseMs: 60000
-  };
-
-  const defaultResults: ResultsConfig = {
-    retainDays: 0,
-    retainRuns: 20
-  };
-
-  const defaultAlerts: AlertsConfig = {
-    email: {
-      enabled: false,
-      recipients: [],
-      smtpHost: '',
-      smtpPort: 587,
-      smtpUser: '',
-      smtpPassword: '',
-      from: '',
-      subject: 'Search API Test Summary'
-    },
-    slack: {
-      enabled: false,
-      webhookUrl: '',
-      channel: ''
-    }
-  };
-
   const envOverride = process.env.TEST_ENVIRONMENT;
   if (envOverride) {
     if (!parsed.environments?.[envOverride]) {
@@ -141,51 +176,69 @@ export const loadConfig = (configPath = path.resolve(__dirname, '..', 'config', 
   }
 
   if (!parsed.quality) {
-    parsed.quality = defaultQuality;
+    parsed.quality = DEFAULT_QUALITY;
   } else {
     parsed.quality = {
-      partialPassPercentage: parsed.quality.partialPassPercentage ?? defaultQuality.partialPassPercentage,
-      fullPassPercentage: parsed.quality.fullPassPercentage ?? defaultQuality.fullPassPercentage,
+      partialPassPercentage: parsed.quality.partialPassPercentage ?? DEFAULT_QUALITY.partialPassPercentage,
+      fullPassPercentage: parsed.quality.fullPassPercentage ?? DEFAULT_QUALITY.fullPassPercentage,
       statusColors: {
-        ...defaultQuality.statusColors,
+        ...DEFAULT_QUALITY.statusColors,
         ...(parsed.quality.statusColors ?? {})
       },
-      failStrategy: parsed.quality.failStrategy ?? defaultQuality.failStrategy,
-      failThresholdPercent: parsed.quality.failThresholdPercent ?? defaultQuality.failThresholdPercent
+      failStrategy: parsed.quality.failStrategy ?? DEFAULT_QUALITY.failStrategy,
+      failThresholdPercent: parsed.quality.failThresholdPercent ?? DEFAULT_QUALITY.failThresholdPercent
     };
   }
 
   if (!parsed.runner) {
-    parsed.runner = defaultRunner;
+    parsed.runner = DEFAULT_RUNNER;
   } else {
     parsed.runner = {
-      workers: parsed.runner.workers ?? defaultRunner.workers,
-      maxInFlightRequests: parsed.runner.maxInFlightRequests ?? defaultRunner.maxInFlightRequests,
-      batchSize: parsed.runner.batchSize ?? defaultRunner.batchSize,
-      batchPauseMs: parsed.runner.batchPauseMs ?? defaultRunner.batchPauseMs
+      workers: parsed.runner.workers ?? DEFAULT_RUNNER.workers,
+      maxInFlightRequests: parsed.runner.maxInFlightRequests ?? DEFAULT_RUNNER.maxInFlightRequests,
+      batchSize: parsed.runner.batchSize ?? DEFAULT_RUNNER.batchSize,
+      batchPauseMs: parsed.runner.batchPauseMs ?? DEFAULT_RUNNER.batchPauseMs
     };
   }
 
+  parsed.api.pagination = {
+    mode: parsed.api.pagination?.mode ?? DEFAULT_PAGINATION.mode,
+    pageParam: parsed.api.pagination?.pageParam ?? DEFAULT_PAGINATION.pageParam,
+    startPage: parsed.api.pagination?.startPage ?? DEFAULT_PAGINATION.startPage,
+    maxPages: parsed.api.pagination?.maxPages ?? DEFAULT_PAGINATION.maxPages,
+    pageSizeParam: parsed.api.pagination?.pageSizeParam ?? DEFAULT_PAGINATION.pageSizeParam,
+    pageSize:
+      parsed.api.pagination?.pageSize !== undefined
+        ? parsed.api.pagination?.pageSize
+        : DEFAULT_PAGINATION.pageSize,
+    pauseBetweenPagesMs:
+      parsed.api.pagination?.pauseBetweenPagesMs ?? DEFAULT_PAGINATION.pauseBetweenPagesMs,
+    responseFields: {
+      ...DEFAULT_PAGINATION.responseFields,
+      ...(parsed.api.pagination?.responseFields ?? {})
+    }
+  };
+
   parsed.results = {
-    retainDays: parsed.results?.retainDays ?? defaultResults.retainDays,
-    retainRuns: parsed.results?.retainRuns ?? defaultResults.retainRuns
+    retainDays: parsed.results?.retainDays ?? DEFAULT_RESULTS.retainDays,
+    retainRuns: parsed.results?.retainRuns ?? DEFAULT_RESULTS.retainRuns
   };
 
   parsed.alerts = {
     email: {
-      enabled: parsed.alerts?.email?.enabled ?? defaultAlerts.email?.enabled ?? false,
-      recipients: parsed.alerts?.email?.recipients ?? defaultAlerts.email?.recipients ?? [],
-      smtpHost: parsed.alerts?.email?.smtpHost ?? defaultAlerts.email?.smtpHost,
-      smtpPort: parsed.alerts?.email?.smtpPort ?? defaultAlerts.email?.smtpPort,
-      smtpUser: parsed.alerts?.email?.smtpUser ?? defaultAlerts.email?.smtpUser,
-      smtpPassword: parsed.alerts?.email?.smtpPassword ?? defaultAlerts.email?.smtpPassword,
-      from: parsed.alerts?.email?.from ?? defaultAlerts.email?.from,
-      subject: parsed.alerts?.email?.subject ?? defaultAlerts.email?.subject
+      enabled: parsed.alerts?.email?.enabled ?? DEFAULT_ALERTS.email?.enabled ?? false,
+      recipients: parsed.alerts?.email?.recipients ?? DEFAULT_ALERTS.email?.recipients ?? [],
+      smtpHost: parsed.alerts?.email?.smtpHost ?? DEFAULT_ALERTS.email?.smtpHost,
+      smtpPort: parsed.alerts?.email?.smtpPort ?? DEFAULT_ALERTS.email?.smtpPort,
+      smtpUser: parsed.alerts?.email?.smtpUser ?? DEFAULT_ALERTS.email?.smtpUser,
+      smtpPassword: parsed.alerts?.email?.smtpPassword ?? DEFAULT_ALERTS.email?.smtpPassword,
+      from: parsed.alerts?.email?.from ?? DEFAULT_ALERTS.email?.from,
+      subject: parsed.alerts?.email?.subject ?? DEFAULT_ALERTS.email?.subject
     },
     slack: {
-      enabled: parsed.alerts?.slack?.enabled ?? defaultAlerts.slack?.enabled ?? false,
-      webhookUrl: parsed.alerts?.slack?.webhookUrl ?? defaultAlerts.slack?.webhookUrl,
-      channel: parsed.alerts?.slack?.channel ?? defaultAlerts.slack?.channel
+      enabled: parsed.alerts?.slack?.enabled ?? DEFAULT_ALERTS.slack?.enabled ?? false,
+      webhookUrl: parsed.alerts?.slack?.webhookUrl ?? DEFAULT_ALERTS.slack?.webhookUrl,
+      channel: parsed.alerts?.slack?.channel ?? DEFAULT_ALERTS.slack?.channel
     }
   };
 
@@ -203,8 +256,7 @@ export const loadConfig = (configPath = path.resolve(__dirname, '..', 'config', 
 
 export const getActiveEnvironment = (): EnvironmentConfig => {
   const config = loadConfig();
-  const env = config.environments[config.environment];
-  return env;
+  return config.environments[config.environment];
 };
 
 export const resolvePlaywrightSettings = (): PlaywrightConfigSettings => {
@@ -214,15 +266,20 @@ export const resolvePlaywrightSettings = (): PlaywrightConfigSettings => {
 
 export const resolveRunnerSettings = (): RunnerConfig => {
   const config = loadConfig();
-  return config.runner ?? { workers: 1, maxInFlightRequests: 5, batchSize: 100, batchPauseMs: 60000 };
+  return config.runner ?? DEFAULT_RUNNER;
 };
 
 export const resolveResultsSettings = (): ResultsConfig => {
   const config = loadConfig();
-  return config.results ?? { retainDays: 0, retainRuns: 20 };
+  return config.results ?? DEFAULT_RESULTS;
 };
 
 export const resolveAlertSettings = (): AlertsConfig => {
   const config = loadConfig();
-  return config.alerts ?? {};
+  return config.alerts ?? DEFAULT_ALERTS;
+};
+
+export const resolvePaginationSettings = (): PaginationConfig => {
+  const config = loadConfig();
+  return config.api.pagination ?? DEFAULT_PAGINATION;
 };

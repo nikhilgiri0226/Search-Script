@@ -20,7 +20,22 @@
     "endpoint": "/filterProducts",
     "timeoutMs": 10000,
     "delayBetweenCallsMs": 500,
-    "expectedStatusCodes": [200, 201]
+    "expectedStatusCodes": [200, 201],
+    "pagination": {
+      "mode": "firstPage",
+      "pageParam": "page",
+      "startPage": 1,
+      "maxPages": 5,
+      "pageSizeParam": "limit",
+      "pageSize": null,
+      "pauseBetweenPagesMs": 0,
+      "responseFields": {
+        "currentPage": "pagination.currentPage",
+        "totalPages": "pagination.totalPages",
+        "hasNextPage": "pagination.hasNextPage",
+        "totalCount": "pagination.totalCount"
+      }
+    }
   },
   "playwright": {
     "headless": true,
