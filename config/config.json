@@ -37,6 +37,14 @@
       "PASS_REVIEW": "#FFF9C4",
       "FAIL": "#FFCDD2",
       "REVIEW": "#FFE0B2"
-    }
+    },
+    "failStrategy": "always",
+    "failThresholdPercent": 10
+  },
+  "runner": {
+    "workers": 1,
+    "maxInFlightRequests": 5,
+    "batchSize": 100,
+    "batchPauseMs": 60000
   }
 }

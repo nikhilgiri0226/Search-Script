@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { performance } from 'perf_hooks';
 import { appendResult } from '../utils/resultLogger';
-import { loadConfig, getActiveEnvironment, StatusCategory } from '../utils/configLoader';
+import { loadConfig, getActiveEnvironment, StatusCategory, resolveRunnerSettings } from '../utils/configLoader';
 
 interface SearchQuery {
   id?: string;
@@ -23,6 +23,7 @@ type RelevanceMap = Record<string, RelevanceEntry>;
 
 const projectConfig = loadConfig();
 const environmentConfig = getActiveEnvironment();
+const runnerSettings = resolveRunnerSettings();
 const queriesPath = path.resolve(__dirname, '..', 'test-data', 'search_queries.json');
 
 if (!fs.existsSync(queriesPath)) {
@@ -76,6 +77,45 @@ const normaliseToWords = (value: string): string[] =>
 
 const filterStopwords = (words: string[]): string[] =>
   words.filter((word) => !stopwords.has(word));
+
+class AsyncSemaphore {
+  private readonly limit: number;
+  private active = 0;
+  private readonly queue: Array<(release: () => void) => void> = [];
+
+  constructor(limit: number) {
+    this.limit = Math.max(limit, 1);
+  }
+
+  private createRelease(): () => void {
+    let released = false;
+    return () => {
+      if (released) {
+        return;
+      }
+      released = true;
+      this.active = Math.max(this.active - 1, 0);
+      const waiter = this.queue.shift();
+      if (waiter) {
+        this.active += 1;
+        waiter(this.createRelease());
+      }
+    };
+  }
+
+  acquire(): Promise<() => void> {
+    if (this.active < this.limit) {
+      this.active += 1;
+      return Promise.resolve(this.createRelease());
+    }
+
+    return new Promise((resolve) => {
+      this.queue.push((release) => {
+        resolve(release);
+      });
+    });
+  }
+}
 
 const expandWordForms = (word: string): string[] => {
   const forms = new Set<string>();
@@ -132,6 +172,16 @@ const collectRelevanceWords = (word: string): string[] => {
   return [...collected];
 };
 
+const requestSemaphore = new AsyncSemaphore(Math.max(runnerSettings.maxInFlightRequests ?? 1, 1));
+const totalKeywords = searchQueries.length;
+let executedKeywords = 0;
+let failedKeywords = 0;
+let abortRun = false;
+let abortReason: string | null = null;
+
+const failStrategy = projectConfig.quality.failStrategy ?? 'always';
+const failThresholdPercent = projectConfig.quality.failThresholdPercent ?? 10;
+
 test.describe('Search API validation', () => {
   test.afterEach(async () => {
     const delay = projectConfig.api.delayBetweenCallsMs;
@@ -143,7 +193,11 @@ test.describe('Search API validation', () => {
   for (const [index, query] of searchQueries.entries()) {
     const testId = query.id ?? `TST_${String(index + 1).padStart(3, '0')}`;
 
-    test(`[${testId}] should validate API search results for keyword "${query.keyword}"`, async ({ request }) => {
+    test(`[${testId}] should validate API search results for keyword "${query.keyword}"`, async ({ request }, testInfo) => {
+      if (abortRun) {
+        test.skip(true, abortReason ?? 'Aborted by fail strategy.');
+      }
+
       const testStart = Date.now();
       const url = `${environmentConfig.baseUrl}${projectConfig.api.endpoint}`;
 
@@ -152,12 +206,19 @@ test.describe('Search API validation', () => {
         keyword: query.keyword
       } as Record<string, string | number | boolean>;
 
-      const responseStart = performance.now();
-      const response = await request.get(url, {
-        params,
-        timeout: projectConfig.api.timeoutMs
-      });
-      const responseTimeMs = Math.round(performance.now() - responseStart);
+      const releaseSemaphore = await requestSemaphore.acquire();
+      let response: Awaited<ReturnType<typeof request.get>>;
+      let responseTimeMs = 0;
+      try {
+        const responseStart = performance.now();
+        response = await request.get(url, {
+          params,
+          timeout: projectConfig.api.timeoutMs
+        });
+        responseTimeMs = Math.round(performance.now() - responseStart);
+      } finally {
+        releaseSemaphore();
+      }
       const httpStatus = response.status();
 
       let statusCategory: StatusCategory = 'FAIL';
@@ -166,6 +227,8 @@ test.describe('Search API validation', () => {
       let totalCount = 0;
       let matchedCount = 0;
       let passPercentage: number | null = null;
+      let shouldFailThisTest = false;
+      let failureRatio = 0;
 
       try {
         expect(projectConfig.api.expectedStatusCodes).toContain(httpStatus);
@@ -223,31 +286,31 @@ test.describe('Search API validation', () => {
             );
           };
 
-          const mismatches = data.filter((item) => !itemMatchesCategory(item));
-          matchedCount = data.length - mismatches.length;
-          passPercentage = Number(((matchedCount / data.length) * 100).toFixed(2));
+        const mismatches = data.filter((item) => !itemMatchesCategory(item));
+        matchedCount = data.length - mismatches.length;
+        passPercentage = Number(((matchedCount / data.length) * 100).toFixed(2));
 
-          const { partialPassPercentage, fullPassPercentage } = projectConfig.quality;
+        const { partialPassPercentage, fullPassPercentage } = projectConfig.quality;
 
-          if (passPercentage <= partialPassPercentage) {
-            statusCategory = 'FAIL';
-            statusDisplay = 'FAIL';
-          } else if (passPercentage < fullPassPercentage) {
-            statusCategory = 'PASS_REVIEW';
-            statusDisplay = 'PASS (Need Review)';
-          } else {
-            statusCategory = 'PASS';
-            statusDisplay = 'PASS';
-          }
+        if (passPercentage <= partialPassPercentage) {
+          statusCategory = 'FAIL';
+          statusDisplay = 'FAIL';
+        } else if (passPercentage < fullPassPercentage) {
+          statusCategory = 'PASS_REVIEW';
+          statusDisplay = 'PASS (Need Review)';
+        } else {
+          statusCategory = 'PASS';
+          statusDisplay = 'PASS';
+        }
 
-          if (statusCategory === 'FAIL' || statusCategory === 'PASS_REVIEW') {
-            const sample = mismatches.slice(0, 3).map((item) => {
-              const categoryName = String(item.categoryName ?? '');
-              const productName = String(item.productName ?? '');
-              return `{categoryName: "${categoryName}", productName: "${productName}"}`;
-            });
-            errorMessage = `Matched ${matchedCount} of ${data.length} item(s). Sample mismatches: ${sample.join(', ')}`;
-          }
+        if (statusCategory === 'FAIL' || statusCategory === 'PASS_REVIEW') {
+          const sample = mismatches.slice(0, 3).map((item) => {
+            const categoryName = String(item.categoryName ?? '');
+            const productName = String(item.productName ?? '');
+            return `{categoryName: "${categoryName}", productName: "${productName}"}`;
+          });
+          errorMessage = `Matched ${matchedCount} of ${data.length} item(s). Sample mismatches: ${sample.join(', ')}`;
+        }
         }
       } catch (error) {
         statusCategory = statusCategory === 'REVIEW' ? statusCategory : 'FAIL';
@@ -256,6 +319,50 @@ test.describe('Search API validation', () => {
       }
 
       const testDurationSeconds = Number(((Date.now() - testStart) / 1000).toFixed(2));
+
+      let countedTowardsStats = false;
+      if (statusCategory !== 'REVIEW') {
+        countedTowardsStats = true;
+        executedKeywords += 1;
+      }
+
+      if (statusCategory === 'FAIL') {
+        failedKeywords += 1;
+        failureRatio = executedKeywords > 0 ? (failedKeywords / executedKeywords) * 100 : 0;
+
+        switch (failStrategy) {
+          case 'fail-fast':
+            abortRun = true;
+            abortReason = `Fail-fast triggered by ${testId}`;
+            shouldFailThisTest = true;
+            break;
+          case 'always':
+            shouldFailThisTest = true;
+            break;
+          case 'threshold':
+            if (failureRatio >= failThresholdPercent) {
+              abortRun = true;
+              abortReason = `Failure threshold ${failThresholdPercent}% reached (${failureRatio.toFixed(2)}%)`;
+              shouldFailThisTest = true;
+            } else {
+              testInfo.annotations.push({
+                type: 'warning',
+                description:
+                  errorMessage ||
+                  `Keyword '${query.keyword}' failed but below threshold (${failureRatio.toFixed(2)}% so far).`
+              });
+            }
+            break;
+          case 'continue':
+          default:
+            testInfo.annotations.push({
+              type: 'warning',
+              description:
+                errorMessage || `Keyword '${query.keyword}' failed quality checks (continue mode).`
+            });
+            break;
+        }
+      }
 
       await appendResult({
         testId,
@@ -274,11 +381,21 @@ test.describe('Search API validation', () => {
         testDurationSeconds
       });
 
+      if (
+        countedTowardsStats &&
+        runnerSettings.batchSize > 0 &&
+        runnerSettings.batchPauseMs > 0 &&
+        executedKeywords % runnerSettings.batchSize === 0 &&
+        executedKeywords < totalKeywords
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, runnerSettings.batchPauseMs));
+      }
+
       if (statusCategory === 'REVIEW') {
         test.skip(true, `Keyword '${query.keyword}' returned no results. Marked for review.`);
       }
 
-      if (statusCategory === 'FAIL') {
+      if (shouldFailThisTest) {
         throw new Error(
           errorMessage ||
             `Pass percentage ${passPercentage ?? 0}% below threshold for keyword '${query.keyword}'.`

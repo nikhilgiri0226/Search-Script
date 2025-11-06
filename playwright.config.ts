@@ -1,5 +1,5 @@
 import { defineConfig, type ReporterDescription } from '@playwright/test';
-import { getActiveEnvironment, resolvePlaywrightSettings, type ReporterSetting } from './utils/configLoader';
+import { getActiveEnvironment, resolvePlaywrightSettings, resolveRunnerSettings, type ReporterSetting } from './utils/configLoader';
 
 const environmentConfig = getActiveEnvironment();
 const playwrightSettings = resolvePlaywrightSettings();
@@ -14,6 +14,7 @@ const normalizeReporter = (setting: ReporterSetting): ReporterDescription[] | st
 };
 
 const reporterConfig = normalizeReporter(playwrightSettings.reporter);
+const runnerSettings = resolveRunnerSettings();
 
 export default defineConfig({
   timeout: playwrightSettings.timeoutMs,
@@ -22,7 +23,7 @@ export default defineConfig({
   },
   retries: playwrightSettings.retries,
   reporter: reporterConfig,
-  workers: 1,
+  workers: runnerSettings.workers,
   use: {
     headless: playwrightSettings.headless,
     baseURL: environmentConfig.baseUrl

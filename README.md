@@ -30,6 +30,11 @@
   - `quality.partialPassPercentage`: minimum pass-rate (%) required to avoid failure (default 90)
   - `quality.fullPassPercentage`: pass-rate (%) required for a full pass classification (default 100)
   - `quality.statusColors`: hex colors used for XLSX status highlighting (`PASS`, `PASS_REVIEW`, `FAIL`, `REVIEW`)
+  - `quality.failStrategy`: controls pipeline gating (`always`, `fail-fast`, `threshold`, `continue`)
+  - `quality.failThresholdPercent`: failure-rate trigger when `failStrategy` = `threshold`
+  - `runner.workers`: Playwright worker count (enables per-keyword parallelism)
+  - `runner.maxInFlightRequests`: semaphore limit to cap concurrent API calls per worker
+  - `runner.batchSize` / `runner.batchPauseMs`: insert backpressure pauses after each batch of keywords
 - `test-data/search_queries.json`
   - `id`: optional custom test identifier; fallback uses `TST_###`
   - `category`: friendly category name used for validation
@@ -62,6 +67,7 @@
   - `FAIL` when the pass-rate is at or below the configured partial threshold (default ≤90%)
   - `PASS (Need Review)` when the pass-rate falls between the partial and full thresholds (default 90–<100%), logging sample mismatches
   - `PASS` when every item matches (100%)
+- Applies the configured failure strategy: immediate abort (`fail-fast`), end-of-run threshold gating (`threshold`), always fail on errors (`always`), or continue without failing the pipeline (`continue`)
 - Marks empty result sets as `REVIEW` (skips the test after logging) to highlight manual follow-up
 - Records response time, total test duration, pass percentage, matched/total counts, status color, and any failure messages in CSV/XLSX output
 

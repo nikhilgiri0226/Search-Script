@@ -30,6 +30,15 @@ export interface QualityConfig {
   partialPassPercentage: number;
   fullPassPercentage: number;
   statusColors: Record<StatusCategory, string>;
+  failStrategy?: 'always' | 'fail-fast' | 'threshold' | 'continue';
+  failThresholdPercent?: number;
+}
+
+export interface RunnerConfig {
+  workers: number;
+  maxInFlightRequests: number;
+  batchSize: number;
+  batchPauseMs: number;
 }
 
 export interface ProjectConfig {
@@ -38,6 +47,7 @@ export interface ProjectConfig {
   api: ApiConfig;
   playwright: PlaywrightConfigSettings;
   quality: QualityConfig;
+  runner?: RunnerConfig;
 }
 
 let cachedConfig: ProjectConfig | null = null;
@@ -58,7 +68,16 @@ export const loadConfig = (configPath = path.resolve(__dirname, '..', 'config', 
       PASS_REVIEW: '#FFF9C4',
       FAIL: '#FFCDD2',
       REVIEW: '#FFE0B2'
-    }
+    },
+    failStrategy: 'always',
+    failThresholdPercent: 10
+  };
+
+  const defaultRunner: RunnerConfig = {
+    workers: 1,
+    maxInFlightRequests: 5,
+    batchSize: 100,
+    batchPauseMs: 60000
   };
 
   const envOverride = process.env.TEST_ENVIRONMENT;
@@ -78,7 +97,20 @@ export const loadConfig = (configPath = path.resolve(__dirname, '..', 'config', 
       statusColors: {
         ...defaultQuality.statusColors,
         ...(parsed.quality.statusColors ?? {})
-      }
+      },
+      failStrategy: parsed.quality.failStrategy ?? defaultQuality.failStrategy,
+      failThresholdPercent: parsed.quality.failThresholdPercent ?? defaultQuality.failThresholdPercent
+    };
+  }
+
+  if (!parsed.runner) {
+    parsed.runner = defaultRunner;
+  } else {
+    parsed.runner = {
+      workers: parsed.runner.workers ?? defaultRunner.workers,
+      maxInFlightRequests: parsed.runner.maxInFlightRequests ?? defaultRunner.maxInFlightRequests,
+      batchSize: parsed.runner.batchSize ?? defaultRunner.batchSize,
+      batchPauseMs: parsed.runner.batchPauseMs ?? defaultRunner.batchPauseMs
     };
   }
 
@@ -103,4 +135,9 @@ export const getActiveEnvironment = (): EnvironmentConfig => {
 export const resolvePlaywrightSettings = (): PlaywrightConfigSettings => {
   const config = loadConfig();
   return config.playwright;
+};
+
+export const resolveRunnerSettings = (): RunnerConfig => {
+  const config = loadConfig();
+  return config.runner ?? { workers: 1, maxInFlightRequests: 5, batchSize: 100, batchPauseMs: 60000 };
 };
