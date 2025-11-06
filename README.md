@@ -36,6 +36,8 @@
   - `keyword`: search keyword applied to the API call
 - `config/relevanceMap.json`
   - Synonyms, related terms, and brand cues used to infer relevance when direct word matches are missing
+- `config/stopwords.json`
+  - Common helper words (e.g., “the”, “in”, “over”) filtered out before matching keywords/categories to API text
 - `results/result_MM-DD-YYYY_HH:MM.csv`
   - Per-run log (one row per keyword) with execution metadata, pass percentage, and match counts; prior CSVs remain untouched for historical review
 - `results/result_MM-DD-YYYY_HH:MM.xlsx`
@@ -55,6 +57,7 @@
 - Ensures HTTP status is in the configured allow-list (200/201 by default)
 - Confirms payload structure (`success`, `msg`, `category`, `data[]`)
 - Validates each returned item contains at least one category/keyword word (case/number insensitive), or a relevance-map synonym/related term, within `categoryName` or `productName`
+- Ignores configurable stop words (e.g., “the”, “in”, “over”) when building match tokens on both the configuration and API response sides
 - Computes per-keyword pass percentage and classifies outcomes as:
   - `FAIL` when the pass-rate is at or below the configured partial threshold (default ≤90%)
   - `PASS (Need Review)` when the pass-rate falls between the partial and full thresholds (default 90–<100%), logging sample mismatches

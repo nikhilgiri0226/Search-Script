@@ -46,12 +46,36 @@ const relevanceMap: RelevanceMap = fs.existsSync(relevanceMapPath)
     )
   : {};
 
+const stopwordsPath = path.resolve(__dirname, '..', 'config', 'stopwords.json');
+const stopwords: Set<string> = (() => {
+  if (!fs.existsSync(stopwordsPath)) {
+    return new Set();
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(stopwordsPath, 'utf-8')) as {
+      words?: string[];
+    };
+    if (!Array.isArray(parsed.words)) {
+      return new Set();
+    }
+
+    return new Set(parsed.words.map((w) => w.trim().toLowerCase()).filter(Boolean));
+  } catch (error) {
+    console.warn(`Failed to read stopwords from ${stopwordsPath}:`, error);
+    return new Set();
+  }
+})();
+
 const normaliseToWords = (value: string): string[] =>
   value
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .map((word) => word.trim())
     .filter(Boolean);
+
+const filterStopwords = (words: string[]): string[] =>
+  words.filter((word) => !stopwords.has(word));
 
 const expandWordForms = (word: string): string[] => {
   const forms = new Set<string>();
@@ -96,7 +120,7 @@ const collectRelevanceWords = (word: string): string[] => {
 
     for (const list of categories) {
       for (const term of list) {
-        for (const normalised of normaliseToWords(term)) {
+        for (const normalised of filterStopwords(normaliseToWords(term))) {
           if (!collected.has(normalised)) {
             collected.add(normalised);
           }
@@ -163,8 +187,8 @@ test.describe('Search API validation', () => {
           errorMessage = 'No results returned; requires manual review.';
         } else {
           const referenceWords = new Set<string>([
-            ...normaliseToWords(query.category),
-            ...normaliseToWords(query.keyword)
+            ...filterStopwords(normaliseToWords(query.category)),
+            ...filterStopwords(normaliseToWords(query.keyword))
           ]);
 
           const processedReferenceWords = new Set<string>();
@@ -189,10 +213,10 @@ test.describe('Search API validation', () => {
           const itemMatchesCategory = (item: Record<string, unknown>): boolean => {
             const categoryName = String(item.categoryName ?? '');
             const productName = String(item.productName ?? '');
-            const itemWords = [
+            const itemWords = filterStopwords([
               ...normaliseToWords(categoryName),
               ...normaliseToWords(productName)
-            ];
+            ]);
 
             return Array.from(referenceWords).some((categoryWord) =>
               itemWords.some((itemWord) => wordsMatch(categoryWord, itemWord))

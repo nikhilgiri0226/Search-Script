@@ -205,7 +205,7 @@ export const appendResult = async (row: TestResultRow): Promise<void> => {
   const passPercentageDisplay =
     row.passPercentage === null || Number.isNaN(row.passPercentage)
       ? 'N/A'
-      : `${(row.passPercentage * 100).toFixed(2)}%`;
+      : `${row.passPercentage.toFixed(2)}%`;
   const matchDisplay = `${row.matchedCount}/${row.totalCount}`;
 
   const line = [
