@@ -172,6 +172,7 @@ const pruneOldResults = (): void => {
 
 let resultsInitialised = false;
 let workbookWritePromise: Promise<void> = Promise.resolve();
+let lastWorkbookError: Error | null = null;
 
 const ensureResultsDirectory = (): void => {
   if (!fs.existsSync(RESULTS_DIR)) {
@@ -293,13 +294,14 @@ const rebuildWorkbookFromCsv = async (): Promise<void> => {
   await workbook.xlsx.writeFile(RESULTS_XLSX_FILE);
 };
 
-const queueWorkbookRebuild = (): Promise<void> => {
-  workbookWritePromise = workbookWritePromise.then(() => rebuildWorkbookFromCsv());
-  workbookWritePromise = workbookWritePromise.catch((error) => {
-    console.error('Failed to rebuild XLSX results', error);
-    throw error;
-  });
-  return workbookWritePromise;
+const queueWorkbookRebuild = (): void => {
+  workbookWritePromise = workbookWritePromise
+    .then(() => rebuildWorkbookFromCsv())
+    .catch((error) => {
+      lastWorkbookError =
+        error instanceof Error ? error : new Error(String(error));
+      console.error("Failed to rebuild XLSX results", error);
+    });
 };
 
 export const appendResult = async (row: TestResultRow): Promise<void> => {
@@ -330,9 +332,16 @@ export const appendResult = async (row: TestResultRow): Promise<void> => {
 
   fs.appendFileSync(RESULTS_FILE, `${line}\n`, 'utf-8');
 
-  await queueWorkbookRebuild();
+  queueWorkbookRebuild();
 };
 
 export const getResultsFilePath = (): string => RESULTS_FILE;
 
 export const getResultsWorkbookPath = (): string => RESULTS_XLSX_FILE;
+
+export const flushResults = async (): Promise<void> => {
+  await workbookWritePromise;
+  if (lastWorkbookError) {
+    throw lastWorkbookError;
+  }
+};

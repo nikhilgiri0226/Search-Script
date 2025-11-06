@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import fs from "fs";
 import path from "path";
 import { performance } from "perf_hooks";
-import { appendResult } from "../utils/resultLogger";
+import { appendResult, flushResults } from "../utils/resultLogger";
 import {
   loadConfig,
   getActiveEnvironment,
@@ -364,6 +364,14 @@ const failStrategy = projectConfig.quality.failStrategy ?? "always";
 const failThresholdPercent = projectConfig.quality.failThresholdPercent ?? 10;
 
 test.describe("Search API validation", () => {
+  test.afterAll(async () => {
+    try {
+      await flushResults();
+    } catch (error) {
+      console.warn("Failed to flush result workbooks:", error);
+    }
+  });
+
   test.afterEach(async () => {
     const delay = projectConfig.api.delayBetweenCallsMs;
     await sleep(delay);
