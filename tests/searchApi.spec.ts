@@ -359,12 +359,20 @@ let executedKeywords = 0;
 let failedKeywords = 0;
 let abortRun = false;
 let abortReason: string | null = null;
+let reviewKeywords = 0;
 
 const failStrategy = projectConfig.quality.failStrategy ?? "always";
 const failThresholdPercent = projectConfig.quality.failThresholdPercent ?? 10;
 
 test.describe("Search API validation", () => {
   test.afterAll(async () => {
+    const processedKeywords = executedKeywords + reviewKeywords;
+    console.info(
+      `[runner] Keyword summary: processed ${processedKeywords}/${totalKeywords} ` +
+        `(quality failures: ${failedKeywords}, review required: ${reviewKeywords}, ` +
+        `skipped due to abort: ${Math.max(totalKeywords - processedKeywords, 0)}).`,
+    );
+
     try {
       await flushResults();
     } catch (error) {
@@ -692,6 +700,7 @@ test.describe("Search API validation", () => {
       }
 
       if (statusCategory === "REVIEW") {
+        reviewKeywords += 1;
         test.skip(
           true,
           `Keyword '${query.keyword}' returned no results. Marked for review.`,
