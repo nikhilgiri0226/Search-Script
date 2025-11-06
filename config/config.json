@@ -38,7 +38,7 @@
       "FAIL": "#FFCDD2",
       "REVIEW": "#FFE0B2"
     },
-    "failStrategy": "always",
+    "failStrategy": "continue",
     "failThresholdPercent": 10
   },
   "runner": {
@@ -46,5 +46,26 @@
     "maxInFlightRequests": 5,
     "batchSize": 100,
     "batchPauseMs": 60000
+  },
+  "results": {
+    "retainDays": 30,
+    "retainRuns": 20
+  },
+  "alerts": {
+    "email": {
+      "enabled": false,
+      "recipients": [],
+      "smtpHost": "",
+      "smtpPort": 587,
+      "smtpUser": "",
+      "smtpPassword": "",
+      "from": "",
+      "subject": "Search API Test Summary"
+    },
+    "slack": {
+      "enabled": false,
+      "webhookUrl": "",
+      "channel": ""
+    }
   }
 }

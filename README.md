@@ -35,6 +35,8 @@
   - `runner.workers`: Playwright worker count (enables per-keyword parallelism)
   - `runner.maxInFlightRequests`: semaphore limit to cap concurrent API calls per worker
   - `runner.batchSize` / `runner.batchPauseMs`: insert backpressure pauses after each batch of keywords
+  - `results.retainDays` / `results.retainRuns`: automatic pruning window for legacy CSV/XLSX artifacts
+  - `alerts.email` / `alerts.slack`: toggleable post-run notifications with placeholder connection details
 - `test-data/search_queries.json`
   - `id`: optional custom test identifier; fallback uses `TST_###`
   - `category`: friendly category name used for validation
@@ -44,9 +46,9 @@
 - `config/stopwords.json`
   - Common helper words (e.g., “the”, “in”, “over”) filtered out before matching keywords/categories to API text
 - `results/result_MM-DD-YYYY_HH:MM.csv`
-  - Per-run log (one row per keyword) with execution metadata, pass percentage, and match counts; prior CSVs remain untouched for historical review
+  - Per-run log (one row per keyword) with execution metadata, pass percentage, and match counts; retention is enforced per `results` settings so stale files can be trimmed automatically
 - `results/result_MM-DD-YYYY_HH:MM.xlsx`
-  - Mirror of the CSV content with status cells pre-colored (light green/yellow/red) for quick review
+  - Mirror of the CSV content with status cells pre-colored (light green/yellow/red) for quick review; follows the same retention policy as the CSV counterpart
 
 ## Running Tests Locally
 - `npm test` (wraps Playwright via `scripts/run-tests.js`, stamping each run with a shared `RESULT_RUN_STAMP`)

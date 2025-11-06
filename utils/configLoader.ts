@@ -41,6 +41,33 @@ export interface RunnerConfig {
   batchPauseMs: number;
 }
 
+export interface ResultsConfig {
+  retainDays?: number;
+  retainRuns?: number;
+}
+
+export interface EmailAlertConfig {
+  enabled: boolean;
+  recipients: string[];
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpUser?: string;
+  smtpPassword?: string;
+  from?: string;
+  subject?: string;
+}
+
+export interface SlackAlertConfig {
+  enabled: boolean;
+  webhookUrl?: string;
+  channel?: string;
+}
+
+export interface AlertsConfig {
+  email?: EmailAlertConfig;
+  slack?: SlackAlertConfig;
+}
+
 export interface ProjectConfig {
   environment: string;
   environments: Record<string, EnvironmentConfig>;
@@ -48,6 +75,8 @@ export interface ProjectConfig {
   playwright: PlaywrightConfigSettings;
   quality: QualityConfig;
   runner?: RunnerConfig;
+  results?: ResultsConfig;
+  alerts?: AlertsConfig;
 }
 
 let cachedConfig: ProjectConfig | null = null;
@@ -78,6 +107,29 @@ export const loadConfig = (configPath = path.resolve(__dirname, '..', 'config', 
     maxInFlightRequests: 5,
     batchSize: 100,
     batchPauseMs: 60000
+  };
+
+  const defaultResults: ResultsConfig = {
+    retainDays: 0,
+    retainRuns: 20
+  };
+
+  const defaultAlerts: AlertsConfig = {
+    email: {
+      enabled: false,
+      recipients: [],
+      smtpHost: '',
+      smtpPort: 587,
+      smtpUser: '',
+      smtpPassword: '',
+      from: '',
+      subject: 'Search API Test Summary'
+    },
+    slack: {
+      enabled: false,
+      webhookUrl: '',
+      channel: ''
+    }
   };
 
   const envOverride = process.env.TEST_ENVIRONMENT;
@@ -114,6 +166,29 @@ export const loadConfig = (configPath = path.resolve(__dirname, '..', 'config', 
     };
   }
 
+  parsed.results = {
+    retainDays: parsed.results?.retainDays ?? defaultResults.retainDays,
+    retainRuns: parsed.results?.retainRuns ?? defaultResults.retainRuns
+  };
+
+  parsed.alerts = {
+    email: {
+      enabled: parsed.alerts?.email?.enabled ?? defaultAlerts.email?.enabled ?? false,
+      recipients: parsed.alerts?.email?.recipients ?? defaultAlerts.email?.recipients ?? [],
+      smtpHost: parsed.alerts?.email?.smtpHost ?? defaultAlerts.email?.smtpHost,
+      smtpPort: parsed.alerts?.email?.smtpPort ?? defaultAlerts.email?.smtpPort,
+      smtpUser: parsed.alerts?.email?.smtpUser ?? defaultAlerts.email?.smtpUser,
+      smtpPassword: parsed.alerts?.email?.smtpPassword ?? defaultAlerts.email?.smtpPassword,
+      from: parsed.alerts?.email?.from ?? defaultAlerts.email?.from,
+      subject: parsed.alerts?.email?.subject ?? defaultAlerts.email?.subject
+    },
+    slack: {
+      enabled: parsed.alerts?.slack?.enabled ?? defaultAlerts.slack?.enabled ?? false,
+      webhookUrl: parsed.alerts?.slack?.webhookUrl ?? defaultAlerts.slack?.webhookUrl,
+      channel: parsed.alerts?.slack?.channel ?? defaultAlerts.slack?.channel
+    }
+  };
+
   if (!parsed.environment) {
     throw new Error('environment not defined in config');
   }
@@ -140,4 +215,14 @@ export const resolvePlaywrightSettings = (): PlaywrightConfigSettings => {
 export const resolveRunnerSettings = (): RunnerConfig => {
   const config = loadConfig();
   return config.runner ?? { workers: 1, maxInFlightRequests: 5, batchSize: 100, batchPauseMs: 60000 };
+};
+
+export const resolveResultsSettings = (): ResultsConfig => {
+  const config = loadConfig();
+  return config.results ?? { retainDays: 0, retainRuns: 20 };
+};
+
+export const resolveAlertSettings = (): AlertsConfig => {
+  const config = loadConfig();
+  return config.alerts ?? {};
 };
