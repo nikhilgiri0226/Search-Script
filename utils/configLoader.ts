@@ -88,6 +88,14 @@ export interface AlertsConfig {
   slack?: SlackAlertConfig;
 }
 
+export interface AliasGroup {
+  words: string[];
+}
+
+export interface AliasesConfig {
+  aliases: AliasGroup[];
+}
+
 export interface ProjectConfig {
   environment: string;
   environments: Record<string, EnvironmentConfig>;
@@ -288,4 +296,24 @@ export const resolveAlertSettings = (): AlertsConfig => {
 export const resolvePaginationSettings = (): PaginationConfig => {
   const config = loadConfig();
   return config.api.pagination ?? DEFAULT_PAGINATION;
+};
+
+export const loadAliasesConfig = (
+  aliasesPath = path.resolve(__dirname, "..", "config", "aliases.json"),
+): AliasesConfig => {
+  if (!fs.existsSync(aliasesPath)) {
+    return { aliases: [] };
+  }
+
+  try {
+    const raw = fs.readFileSync(aliasesPath, "utf-8");
+    const parsed = JSON.parse(raw) as AliasesConfig;
+    if (!Array.isArray(parsed.aliases)) {
+      return { aliases: [] };
+    }
+    return parsed;
+  } catch (error) {
+    console.warn(`Failed to read aliases configuration from ${aliasesPath}:`, error);
+    return { aliases: [] };
+  }
 };

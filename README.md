@@ -56,6 +56,8 @@
   - `keyword`: search keyword applied to the API call
 - `config/relevanceMap.json`
   - Synonyms, related terms, and brand cues used to infer relevance when direct word matches are missing
+- `config/aliases.json`
+  - Global synonym/alias groups applied across all keywords (e.g., `fridge` ↔ `refrigerator`)
 - `config/stopwords.json`
   - Common helper words (e.g., “the”, “in”, “over”) filtered out before matching keywords/categories to API text
 - `results/result_MM-DD-YYYY_HH:MM.csv`

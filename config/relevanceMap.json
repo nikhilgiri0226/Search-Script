@@ -1,291 +1,497 @@
 {
   "refrigerator": {
     "synonyms": [
-      "fridge", "freezer", "icebox", "mini fridge", "cooler", "compact fridge",
-      "wine cooler", "beverage fridge", "deep freezer", "bar fridge", "kegerator"
+      "fridge",
+      "freezer",
+      "icebox",
+      "mini fridge",
+      "cooler",
+      "compact fridge",
+      "wine cooler",
+      "beverage fridge",
+      "deep freezer",
+      "bar fridge",
+      "kegerator"
     ],
     "related": [
-      "cooling", "chill", "ice", "cold storage", "frost free", "defrost",
-      "temperature control", "smart cooling", "humidity control"
+      "cooling",
+      "chill",
+      "ice",
+      "cold storage",
+      "frost free",
+      "defrost",
+      "temperature control",
+      "smart cooling",
+      "humidity control"
     ],
     "brands": [
-      "bosch", "whirlpool", "lg", "samsung", "ge", "frigidaire", "maytag", "kitchenaid"
+      "bosch",
+      "whirlpool",
+      "lg",
+      "samsung",
+      "ge",
+      "frigidaire",
+      "maytag",
+      "kitchenaid"
     ],
     "form_factors": [
-      "french door", "side by side", "top freezer", "bottom freezer",
-      "counter depth", "built-in", "undercounter", "compact"
+      "french door",
+      "side by side",
+      "top freezer",
+      "bottom freezer",
+      "counter depth",
+      "built-in",
+      "undercounter",
+      "compact"
     ],
-    "misspellings": [
-      "refridgerator", "refrigirator", "frige", "fridg"
-    ]
+    "misspellings": ["refridgerator", "refrigirator", "frige", "fridg"]
+  },
+
+  "beverage": {
+    "related": ["drink", "cooler", "bar", "wine"]
+  },
+
+  "fridge": {
+    "synonyms": [
+      "refrigerator",
+      "mini fridge",
+      "beverage cooler",
+      "beverage refrigerator",
+      "wine refrigerator",
+      "compact fridge"
+    ],
+    "related": ["cooling", "cold", "chill", "undercounter", "built in"]
   },
 
   "freezer refrigerator": {
     "synonyms": [
-      "deep freezer", "upright freezer", "chest freezer", "compact freezer",
-      "garage freezer", "mini freezer", "fridge freezer combo"
+      "deep freezer",
+      "upright freezer",
+      "chest freezer",
+      "compact freezer",
+      "garage freezer",
+      "mini freezer",
+      "fridge freezer combo"
     ],
     "related": [
-      "ice storage", "cold", "frozen food", "frost free", "deep chill",
-      "temperature control", "energy efficient"
+      "ice storage",
+      "cold",
+      "frozen food",
+      "frost free",
+      "deep chill",
+      "temperature control",
+      "energy efficient"
     ],
-    "brands": [
-      "whirlpool", "frigidaire", "ge", "haier", "amana"
-    ],
+    "brands": ["whirlpool", "frigidaire", "ge", "haier", "amana"],
     "form_factors": [
-      "upright", "chest", "compact", "garage ready", "built-in", "undercounter"
+      "upright",
+      "chest",
+      "compact",
+      "garage ready",
+      "built-in",
+      "undercounter"
     ],
-    "misspellings": [
-      "frezer", "freazzer", "freezr", "freazer"
-    ]
+    "misspellings": ["frezer", "freazzer", "freezr", "freazer"]
   },
 
   "ice maker refrigerator": {
     "synonyms": [
-      "icemaker", "ice machine", "ice maker machine", "nugget ice maker",
-      "portable ice maker", "countertop ice maker", "ice cube maker"
+      "icemaker",
+      "ice machine",
+      "ice maker machine",
+      "nugget ice maker",
+      "portable ice maker",
+      "countertop ice maker",
+      "ice cube maker"
     ],
     "related": [
-      "ice", "frozen", "crushed ice", "nugget ice", "pellet ice",
-      "home bar", "beverage", "cooling"
+      "ice",
+      "frozen",
+      "crushed ice",
+      "nugget ice",
+      "pellet ice",
+      "home bar",
+      "beverage",
+      "cooling"
     ],
-    "brands": [
-      "ge", "whirlpool", "frigidaire", "kitchenaid", "lg"
-    ],
+    "brands": ["ge", "whirlpool", "frigidaire", "kitchenaid", "lg"],
     "form_factors": [
-      "built-in", "countertop", "portable", "under counter", "freestanding"
+      "built-in",
+      "countertop",
+      "portable",
+      "under counter",
+      "freestanding"
     ],
-    "misspellings": [
-      "icmakr", "icee maker", "icemkr", "ice makr"
-    ]
+    "misspellings": ["icmakr", "icee maker", "icemkr", "ice makr"]
   },
 
   "beer cooler kegerator": {
     "synonyms": [
-      "beer fridge", "beer cooler", "mini beer fridge", "kegerator",
-      "draft beer dispenser", "beer tap", "beer chiller"
+      "beer fridge",
+      "beer cooler",
+      "mini beer fridge",
+      "kegerator",
+      "draft beer dispenser",
+      "beer tap",
+      "beer chiller"
     ],
     "related": [
-      "bar", "pub", "home bar", "draft system", "beer tap", "brewery",
-      "cooling", "party fridge"
+      "bar",
+      "pub",
+      "home bar",
+      "draft system",
+      "beer tap",
+      "brewery",
+      "cooling",
+      "party fridge"
     ],
-    "brands": [
-      "danby", "edgestar", "heineken", "corona", "budweiser"
-    ],
+    "brands": ["danby", "edgestar", "heineken", "corona", "budweiser"],
     "form_factors": [
-      "freestanding", "built-in", "dual tap", "single tap", "compact"
+      "freestanding",
+      "built-in",
+      "dual tap",
+      "single tap",
+      "compact"
     ],
-    "misspellings": [
-      "bear cooler", "kegarator", "kegorator", "beer coolr"
-    ]
+    "misspellings": ["bear cooler", "kegarator", "kegorator", "beer coolr"]
   },
 
   "dishwasher": {
     "synonyms": [
-      "dish washer", "dish cleaning machine", "automatic dishwasher",
-      "portable dishwasher", "countertop dishwasher"
+      "dish washer",
+      "dish cleaning machine",
+      "automatic dishwasher",
+      "portable dishwasher",
+      "countertop dishwasher"
     ],
     "related": [
-      "washing", "clean dishes", "rinse aid", "detergent", "stainless steel",
-      "energy efficient", "quiet operation"
+      "washing",
+      "clean dishes",
+      "rinse aid",
+      "detergent",
+      "stainless steel",
+      "energy efficient",
+      "quiet operation"
     ],
     "brands": [
-      "bosch", "whirlpool", "ge", "frigidaire", "samsung", "lg", "kitchenaid", "maytag"
+      "bosch",
+      "whirlpool",
+      "ge",
+      "frigidaire",
+      "samsung",
+      "lg",
+      "kitchenaid",
+      "maytag"
     ],
     "form_factors": [
-      "built-in", "portable", "drawer", "compact", "under counter"
+      "built-in",
+      "portable",
+      "drawer",
+      "compact",
+      "under counter"
     ],
-    "misspellings": [
-      "dishwaser", "dishwshr", "dischwasher", "dishwaher"
-    ]
+    "misspellings": ["dishwaser", "dishwshr", "dischwasher", "dishwaher"]
   },
 
   "range": {
     "synonyms": [
-      "stove", "oven range", "gas range", "electric range", "cook range",
-      "induction range", "dual fuel range"
+      "stove",
+      "oven range",
+      "gas range",
+      "electric range",
+      "cook range",
+      "induction range",
+      "dual fuel range"
     ],
     "related": [
-      "bake", "cook", "burner", "grill top", "heat control", "oven combo"
+      "bake",
+      "cook",
+      "burner",
+      "grill top",
+      "heat control",
+      "oven combo"
     ],
     "brands": [
-      "samsung", "ge", "frigidaire", "bosch", "lg", "viking", "wolf", "kitchenaid"
+      "samsung",
+      "ge",
+      "frigidaire",
+      "bosch",
+      "lg",
+      "viking",
+      "wolf",
+      "kitchenaid"
     ],
     "form_factors": [
-      "slide-in", "freestanding", "drop-in", "professional", "compact"
+      "slide-in",
+      "freestanding",
+      "drop-in",
+      "professional",
+      "compact"
     ],
-    "misspellings": [
-      "raange", "rang", "ranj", "ragne"
-    ]
+    "misspellings": ["raange", "rang", "ranj", "ragne"]
   },
 
   "cooktop": {
     "synonyms": [
-      "stovetop", "gas cooktop", "electric cooktop", "induction cooktop",
-      "range top", "cook surface", "hob"
+      "stovetop",
+      "gas cooktop",
+      "electric cooktop",
+      "induction cooktop",
+      "range top",
+      "cook surface",
+      "hob"
     ],
     "related": [
-      "cooking surface", "burner", "heating element", "flat cooktop", "glass top"
+      "cooking surface",
+      "burner",
+      "heating element",
+      "flat cooktop",
+      "glass top"
     ],
     "brands": [
-      "bosch", "ge", "thermador", "lg", "samsung", "wolf", "kitchenaid"
+      "bosch",
+      "ge",
+      "thermador",
+      "lg",
+      "samsung",
+      "wolf",
+      "kitchenaid"
     ],
-    "form_factors": [
-      "induction", "gas", "electric", "radiant", "built-in"
-    ],
-    "misspellings": [
-      "cooktop", "coocktop", "cooktp", "cooktopp"
-    ]
+    "form_factors": ["induction", "gas", "electric", "radiant", "built-in"],
+    "misspellings": ["cooktop", "coocktop", "cooktp", "cooktopp"]
   },
 
   "wall oven": {
     "synonyms": [
-      "built-in oven", "double oven", "electric oven", "convection oven",
-      "steam oven", "gas oven"
+      "built-in oven",
+      "double oven",
+      "electric oven",
+      "convection oven",
+      "steam oven",
+      "gas oven"
     ],
     "related": [
-      "bake", "roast", "broil", "convection cooking", "preheat", "self-cleaning"
+      "bake",
+      "roast",
+      "broil",
+      "convection cooking",
+      "preheat",
+      "self-cleaning"
     ],
     "brands": [
-      "ge", "bosch", "lg", "whirlpool", "kitchenaid", "thermador", "wolf"
+      "ge",
+      "bosch",
+      "lg",
+      "whirlpool",
+      "kitchenaid",
+      "thermador",
+      "wolf"
     ],
     "form_factors": [
-      "single wall", "double wall", "combination", "steam", "convection"
+      "single wall",
+      "double wall",
+      "combination",
+      "steam",
+      "convection"
     ],
-    "misspellings": [
-      "wal oven", "wallovem", "wll oven", "wall oevn"
-    ]
+    "misspellings": ["wal oven", "wallovem", "wll oven", "wall oevn"]
   },
 
   "microwave": {
     "synonyms": [
-      "microwave oven", "countertop microwave", "built-in microwave",
-      "over-the-range microwave", "drawer microwave"
+      "microwave oven",
+      "countertop microwave",
+      "built-in microwave",
+      "over-the-range microwave",
+      "drawer microwave"
     ],
     "related": [
-      "reheat", "defrost", "quick cook", "sensor cooking", "compact oven"
+      "reheat",
+      "defrost",
+      "quick cook",
+      "sensor cooking",
+      "compact oven"
     ],
-    "brands": [
-      "samsung", "lg", "ge", "whirlpool", "frigidaire", "panasonic"
-    ],
+    "brands": ["samsung", "lg", "ge", "whirlpool", "frigidaire", "panasonic"],
     "form_factors": [
-      "countertop", "over the range", "built-in", "drawer", "compact"
+      "countertop",
+      "over the range",
+      "built-in",
+      "drawer",
+      "compact"
     ],
-    "misspellings": [
-      "micowave", "micorwave", "micrwave", "microwve"
-    ]
+    "misspellings": ["micowave", "micorwave", "micrwave", "microwve"]
   },
 
   "range hood": {
     "synonyms": [
-      "vent hood", "exhaust hood", "kitchen hood", "chimney hood",
-      "downdraft vent", "cooking ventilation"
+      "vent hood",
+      "exhaust hood",
+      "kitchen hood",
+      "chimney hood",
+      "downdraft vent",
+      "cooking ventilation"
     ],
     "related": [
-      "ventilation", "air extraction", "odor removal", "filter", "ducted hood"
+      "ventilation",
+      "air extraction",
+      "odor removal",
+      "filter",
+      "ducted hood"
     ],
-    "brands": [
-      "bosch", "zephyr", "broan", "ge", "whirlpool", "kitchenaid"
-    ],
+    "brands": ["bosch", "zephyr", "broan", "ge", "whirlpool", "kitchenaid"],
     "form_factors": [
-      "under cabinet", "wall mount", "island mount", "downdraft", "insert"
+      "under cabinet",
+      "wall mount",
+      "island mount",
+      "downdraft",
+      "insert"
     ],
-    "misspellings": [
-      "rangehod", "ranghood", "ranj hood", "rangehod"
-    ]
+    "misspellings": ["rangehod", "ranghood", "ranj hood", "rangehod"]
   },
 
   "coffee system": {
     "synonyms": [
-      "coffee maker", "espresso machine", "brewer", "bean to cup",
-      "cappuccino machine", "built-in coffee machine"
+      "coffee maker",
+      "espresso machine",
+      "brewer",
+      "bean to cup",
+      "cappuccino machine",
+      "built-in coffee machine"
     ],
     "related": [
-      "brew", "espresso", "latte", "grind", "coffee beans", "steam wand"
+      "brew",
+      "espresso",
+      "latte",
+      "grind",
+      "coffee beans",
+      "steam wand"
     ],
-    "brands": [
-      "miele", "breville", "delonghi", "bosch", "jura", "nespresso"
-    ],
+    "brands": ["miele", "breville", "delonghi", "bosch", "jura", "nespresso"],
     "form_factors": [
-      "built-in", "pod", "drip", "espresso", "manual", "automatic"
+      "built-in",
+      "pod",
+      "drip",
+      "espresso",
+      "manual",
+      "automatic"
     ],
-    "misspellings": [
-      "coffe", "cofee", "coffy", "cofe system"
-    ]
+    "misspellings": ["coffe", "cofee", "coffy", "cofe system"]
   },
 
   "trash compactor": {
     "synonyms": [
-      "waste compactor", "garbage compactor", "trash crusher", "kitchen compactor"
+      "waste compactor",
+      "garbage compactor",
+      "trash crusher",
+      "kitchen compactor"
     ],
     "related": [
-      "waste", "recycling", "odor control", "bin", "compaction", "trash disposal"
+      "waste",
+      "recycling",
+      "odor control",
+      "bin",
+      "compaction",
+      "trash disposal"
     ],
-    "brands": [
-      "whirlpool", "kitchenaid", "ge", "broan", "gladiator"
-    ],
+    "brands": ["whirlpool", "kitchenaid", "ge", "broan", "gladiator"],
     "form_factors": [
-      "built-in", "freestanding", "undercounter", "manual", "automatic"
+      "built-in",
+      "freestanding",
+      "undercounter",
+      "manual",
+      "automatic"
     ],
     "misspellings": [
-      "trash compctor", "trsh compactor", "trashcompactr", "trashcompacter"
+      "trash compctor",
+      "trsh compactor",
+      "trashcompactr",
+      "trashcompacter"
     ]
   },
 
   "outdoor grill": {
     "synonyms": [
-      "bbq grill", "barbecue", "gas grill", "charcoal grill", "smoker",
+      "bbq grill",
+      "barbecue",
+      "gas grill",
+      "charcoal grill",
+      "smoker",
       "outdoor kitchen grill"
     ],
-    "related": [
-      "grilling", "cookout", "smoking", "backyard", "patio cooking"
-    ],
+    "related": ["grilling", "cookout", "smoking", "backyard", "patio cooking"],
     "brands": [
-      "weber", "traeger", "nexgrill", "char-broil", "blackstone", "napoleon"
+      "weber",
+      "traeger",
+      "nexgrill",
+      "char-broil",
+      "blackstone",
+      "napoleon"
     ],
     "form_factors": [
-      "portable", "freestanding", "built-in", "smoker", "flat top"
+      "portable",
+      "freestanding",
+      "built-in",
+      "smoker",
+      "flat top"
     ],
-    "misspellings": [
-      "gril", "grilll", "outdor grill", "outdoorgril"
-    ]
+    "misspellings": ["gril", "grilll", "outdor grill", "outdoorgril"]
   },
 
   "wine cooler": {
     "synonyms": [
-      "wine fridge", "wine refrigerator", "beverage cooler", "wine cellar",
-      "dual zone wine cooler", "undercounter wine fridge"
+      "wine fridge",
+      "wine refrigerator",
+      "beverage cooler",
+      "wine cellar",
+      "dual zone wine cooler",
+      "undercounter wine fridge"
     ],
     "related": [
-      "wine storage", "temperature control", "chilling", "aging", "humidity control"
+      "wine storage",
+      "temperature control",
+      "chilling",
+      "aging",
+      "humidity control"
     ],
     "brands": [
-      "frigidaire", "haier", "vinotemp", "zephyr", "cuisinart", "avanti"
+      "frigidaire",
+      "haier",
+      "vinotemp",
+      "zephyr",
+      "cuisinart",
+      "avanti"
     ],
     "form_factors": [
-      "single zone", "dual zone", "freestanding", "built-in", "undercounter"
+      "single zone",
+      "dual zone",
+      "freestanding",
+      "built-in",
+      "undercounter"
     ],
-    "misspellings": [
-      "win cooler", "wien cooler", "winecoolr", "winecooler"
-    ]
+    "misspellings": ["win cooler", "wien cooler", "winecoolr", "winecooler"]
   },
 
   "washer dryer": {
     "synonyms": [
-      "laundry machine", "washing machine", "dryer", "washer combo",
-      "front load washer", "top load washer", "tumble dryer"
+      "laundry machine",
+      "washing machine",
+      "dryer",
+      "washer combo",
+      "front load washer",
+      "top load washer",
+      "tumble dryer"
     ],
     "related": [
-      "laundry", "spin cycle", "drying", "clean clothes", "detergent", "fabric softener"
+      "laundry",
+      "spin cycle",
+      "drying",
+      "clean clothes",
+      "detergent",
+      "fabric softener"
     ],
-    "brands": [
-      "samsung", "lg", "whirlpool", "maytag", "ge", "bosch"
-    ],
-    "form_factors": [
-      "front load", "top load", "stacked", "combo", "compact"
-    ],
-    "misspellings": [
-      "waser", "washr", "dryr", "washar dryer"
-    ]
+    "brands": ["samsung", "lg", "whirlpool", "maytag", "ge", "bosch"],
+    "form_factors": ["front load", "top load", "stacked", "combo", "compact"],
+    "misspellings": ["waser", "washr", "dryr", "washar dryer"]
   }
 }

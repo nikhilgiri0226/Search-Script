@@ -9,6 +9,8 @@ import {
   StatusCategory,
   resolveRunnerSettings,
   resolvePaginationSettings,
+  loadAliasesConfig,
+  AliasGroup,
 } from "../utils/configLoader";
 
 interface SearchQuery {
@@ -127,6 +129,38 @@ const normaliseToWords = (value: string): string[] =>
 
 const filterStopwords = (words: string[]): string[] =>
   words.filter((word) => !stopwords.has(word));
+
+const aliasesConfig = loadAliasesConfig();
+
+const aliasMap: Map<string, Set<string>> = (() => {
+  const map = new Map<string, Set<string>>();
+  const groups: AliasGroup[] = Array.isArray(aliasesConfig.aliases)
+    ? aliasesConfig.aliases
+    : [];
+
+  for (const group of groups) {
+    if (!Array.isArray(group.words)) {
+      continue;
+    }
+    const normalizedWords = group.words
+      .flatMap((word) => filterStopwords(normaliseToWords(word)))
+      .filter(Boolean);
+
+    for (const word of normalizedWords) {
+      if (!map.has(word)) {
+        map.set(word, new Set<string>());
+      }
+      const set = map.get(word)!;
+      for (const other of normalizedWords) {
+        if (other !== word) {
+          set.add(other);
+        }
+      }
+    }
+  }
+
+  return map;
+})();
 
 const sleep = (ms: number): Promise<void> =>
   ms > 0
@@ -255,13 +289,47 @@ const expandWordForms = (word: string): string[] => {
 const wordsMatch = (a: string, b: string): boolean => {
   const formsA = expandWordForms(a);
   const formsB = expandWordForms(b);
-  return formsA.some((form) => formsB.includes(form));
+
+  if (formsA.some((form) => formsB.includes(form))) {
+    return true;
+  }
+
+  for (const form of formsA) {
+    const aliasSet = aliasMap.get(form);
+    if (aliasSet) {
+      for (const alias of aliasSet) {
+        if (formsB.includes(alias)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  for (const form of formsB) {
+    const aliasSet = aliasMap.get(form);
+    if (aliasSet) {
+      for (const alias of aliasSet) {
+        if (formsA.includes(alias)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 };
 
 const collectRelevanceWords = (word: string): string[] => {
   const collected = new Set<string>();
 
   for (const form of expandWordForms(word)) {
+    const aliasMatches = aliasMap.get(form);
+    if (aliasMatches) {
+      for (const alias of aliasMatches) {
+        collected.add(alias);
+      }
+    }
+
     const entry = relevanceMap[form];
     if (!entry) {
       continue;
