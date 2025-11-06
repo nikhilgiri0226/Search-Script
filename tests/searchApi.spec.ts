@@ -634,6 +634,14 @@ test.describe("Search API validation", () => {
         failedKeywords += 1;
         failureRatio =
           executedKeywords > 0 ? (failedKeywords / executedKeywords) * 100 : 0;
+        const passRateDisplay =
+          passPercentage === null || Number.isNaN(passPercentage)
+            ? "N/A"
+            : passPercentage.toFixed(2);
+        const failMessage =
+          errorMessage ||
+          `Keyword '${query.keyword}' failed quality checks (${passRateDisplay}% pass rate).`;
+        expect.soft(statusCategory, failMessage).toBe("PASS");
 
         switch (failStrategy) {
           case "fail-fast":
