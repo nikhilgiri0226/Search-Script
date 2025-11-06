@@ -9,6 +9,9 @@
   },
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  },
   "devDependencies": {
     "@playwright/test": "^1.48.0",
     "ts-node": "^10.9.2",

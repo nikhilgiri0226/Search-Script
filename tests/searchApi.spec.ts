@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { performance } from 'perf_hooks';
 import { appendResult } from '../utils/resultLogger';
-import { loadConfig, getActiveEnvironment } from '../utils/configLoader';
+import { loadConfig, getActiveEnvironment, StatusCategory } from '../utils/configLoader';
 
 interface SearchQuery {
   id?: string;
@@ -136,8 +136,12 @@ test.describe('Search API validation', () => {
       const responseTimeMs = Math.round(performance.now() - responseStart);
       const httpStatus = response.status();
 
-      let status: 'PASS' | 'FAIL' | 'REVIEW' = 'FAIL';
+      let statusCategory: StatusCategory = 'FAIL';
+      let statusDisplay = 'FAIL';
       let errorMessage = '';
+      let totalCount = 0;
+      let matchedCount = 0;
+      let passPercentage: number | null = null;
 
       try {
         expect(projectConfig.api.expectedStatusCodes).toContain(httpStatus);
@@ -151,9 +155,11 @@ test.describe('Search API validation', () => {
         expect(Array.isArray(body.data)).toBeTruthy();
 
         const data = body.data as Array<Record<string, unknown>>;
+        totalCount = data.length;
 
         if (data.length === 0) {
-          status = 'REVIEW';
+          statusCategory = 'REVIEW';
+          statusDisplay = 'REVIEW';
           errorMessage = 'No results returned; requires manual review.';
         } else {
           const referenceWords = new Set<string>([
@@ -194,21 +200,34 @@ test.describe('Search API validation', () => {
           };
 
           const mismatches = data.filter((item) => !itemMatchesCategory(item));
+          matchedCount = data.length - mismatches.length;
+          passPercentage = Number(((matchedCount / data.length) * 100).toFixed(2));
 
-          if (mismatches.length > 0) {
-            status = 'FAIL';
+          const { partialPassPercentage, fullPassPercentage } = projectConfig.quality;
+
+          if (passPercentage <= partialPassPercentage) {
+            statusCategory = 'FAIL';
+            statusDisplay = 'FAIL';
+          } else if (passPercentage < fullPassPercentage) {
+            statusCategory = 'PASS_REVIEW';
+            statusDisplay = 'PASS (Need Review)';
+          } else {
+            statusCategory = 'PASS';
+            statusDisplay = 'PASS';
+          }
+
+          if (statusCategory === 'FAIL' || statusCategory === 'PASS_REVIEW') {
             const sample = mismatches.slice(0, 3).map((item) => {
               const categoryName = String(item.categoryName ?? '');
               const productName = String(item.productName ?? '');
               return `{categoryName: "${categoryName}", productName: "${productName}"}`;
             });
-            errorMessage = `Found ${mismatches.length} item(s) without category word match. Sample: ${sample.join(', ')}`;
-          } else {
-            status = 'PASS';
+            errorMessage = `Matched ${matchedCount} of ${data.length} item(s). Sample mismatches: ${sample.join(', ')}`;
           }
         }
       } catch (error) {
-        status = status === 'REVIEW' ? status : 'FAIL';
+        statusCategory = statusCategory === 'REVIEW' ? statusCategory : 'FAIL';
+        statusDisplay = statusCategory === 'REVIEW' ? statusDisplay : 'FAIL';
         errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
       }
 
@@ -219,18 +238,28 @@ test.describe('Search API validation', () => {
         timestamp: new Date().toISOString(),
         environment: environmentConfig.name,
         keyword: `${query.keyword} (${query.category})`,
-        status,
+        status: statusDisplay,
+        statusCategory,
+        passPercentage,
+        matchedCount,
+        totalCount,
+        statusColor: projectConfig.quality.statusColors[statusCategory] ?? '',
         responseTimeMs,
         httpStatusCode: httpStatus,
         errorMessage,
         testDurationSeconds
       });
 
-      if (status === 'REVIEW') {
-        test.skip(`Keyword '${query.keyword}' returned no results. Marked for review.`);
+      if (statusCategory === 'REVIEW') {
+        test.skip(true, `Keyword '${query.keyword}' returned no results. Marked for review.`);
       }
 
-      expect(status).toBe('PASS');
+      if (statusCategory === 'FAIL') {
+        throw new Error(
+          errorMessage ||
+            `Pass percentage ${passPercentage ?? 0}% below threshold for keyword '${query.keyword}'.`
+        );
+      }
     });
   }
 });

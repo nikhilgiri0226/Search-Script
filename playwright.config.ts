@@ -1,8 +1,19 @@
-import { defineConfig } from '@playwright/test';
-import { getActiveEnvironment, resolvePlaywrightSettings } from './utils/configLoader';
+import { defineConfig, type ReporterDescription } from '@playwright/test';
+import { getActiveEnvironment, resolvePlaywrightSettings, type ReporterSetting } from './utils/configLoader';
 
 const environmentConfig = getActiveEnvironment();
 const playwrightSettings = resolvePlaywrightSettings();
+
+const normalizeReporter = (setting: ReporterSetting): ReporterDescription[] | string => {
+  if (Array.isArray(setting)) {
+    return setting.map((entry) =>
+      Array.isArray(entry) ? (entry as ReporterDescription) : ([entry] as ReporterDescription)
+    );
+  }
+  return setting;
+};
+
+const reporterConfig = normalizeReporter(playwrightSettings.reporter);
 
 export default defineConfig({
   timeout: playwrightSettings.timeoutMs,
@@ -10,7 +21,7 @@ export default defineConfig({
     timeout: playwrightSettings.expectTimeoutMs
   },
   retries: playwrightSettings.retries,
-  reporter: playwrightSettings.reporter,
+  reporter: reporterConfig,
   workers: 1,
   use: {
     headless: playwrightSettings.headless,
