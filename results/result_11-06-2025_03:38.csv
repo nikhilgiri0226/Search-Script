@@ -790,3 +790,5 @@ TST_788,2025-11-06T05:07:45.299Z,prod-api,pedestals for washer and dryer (Washer
 TST_789,2025-11-06T05:07:53.043Z,prod-api,samsung washer dryer pedestal (Washer Dryer),PASS,10000.00%,10/10,#C8E6C9,927,200,,0.95
 TST_790,2025-11-06T05:08:01.183Z,prod-api,washer pedestal (Washer Dryer),PASS,10000.00%,10/10,#C8E6C9,1199,200,,1.22
 TST_791,2025-11-06T05:08:09.084Z,prod-api,pedestal washer (Washer Dryer),PASS,10000.00%,10/10,#C8E6C9,924,200,,0.94
+TST_792,2025-11-06T05:08:16.872Z,prod-api,stacked washer dryer combo (Washer Dryer),PASS,10000.00%,10/10,#C8E6C9,795,200,,0.81
+TST_793,2025-11-06T05:08:27.138Z,prod-api,combo washer dryer (Washer Dryer),PASS,10000.00%,10/10,#C8E6C9,1004,200,,1.02
