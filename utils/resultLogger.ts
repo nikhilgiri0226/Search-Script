@@ -68,15 +68,17 @@ const toExcelArgb = (hex: string): string => {
   return `FF${normalized}`;
 };
 
-const rows: TestResultRow[] = [];
-
 let resultsInitialised = false;
 let workbookWritePromise: Promise<void> = Promise.resolve();
 
-const ensureResultsFile = (): void => {
+const ensureResultsDirectory = (): void => {
   if (!fs.existsSync(RESULTS_DIR)) {
     fs.mkdirSync(RESULTS_DIR, { recursive: true });
   }
+};
+
+const ensureResultsFile = (): void => {
+  ensureResultsDirectory();
 
   if (!resultsInitialised) {
     resultsInitialised = true;
@@ -87,11 +89,30 @@ const ensureResultsFile = (): void => {
   }
 };
 
-const writeWorkbook = async (): Promise<void> => {
-  if (rows.length === 0) {
-    return;
+const parsePassPercentage = (value: string | number | null | undefined): number | null => {
+  if (value === null || value === undefined) {
+    return null;
   }
 
+  const strValue = String(value).replace('%', '').trim();
+  if (!strValue) {
+    return null;
+  }
+
+  const numeric = Number(strValue);
+  return Number.isFinite(numeric) ? numeric / 100 : null;
+};
+
+const parseNumber = (value: string | number | null | undefined): number | null => {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  const numeric = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+};
+
+const rebuildWorkbookFromCsv = async (): Promise<void> => {
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Results');
 
@@ -108,44 +129,71 @@ const writeWorkbook = async (): Promise<void> => {
     { header: 'Error Message', key: 'errorMessage', width: 60 },
     { header: 'Test Duration (s)', key: 'testDurationSeconds', width: 18 }
   ];
-
   worksheet.views = [{ state: 'frozen', ySplit: 1 }];
 
-  rows.forEach((row) => {
-    const excelRow = worksheet.addRow({
-      testId: row.testId,
-      timestamp: row.timestamp,
-      environment: row.environment,
-      keyword: row.keyword,
-      status: row.status,
-      passPercentage: row.passPercentage === null ? null : row.passPercentage / 100,
-      matchRatio: `${row.matchedCount}/${row.totalCount}`,
-      responseTimeMs: row.responseTimeMs,
-      httpStatusCode: row.httpStatusCode,
-      errorMessage: row.errorMessage,
-      testDurationSeconds: row.testDurationSeconds
-    });
+  if (fs.existsSync(RESULTS_FILE)) {
+    const csvWorkbook = new ExcelJS.Workbook();
+    await csvWorkbook.csv.readFile(RESULTS_FILE);
+    const csvWorksheet = csvWorkbook.worksheets[0];
 
-    const statusCell = excelRow.getCell(5);
-    statusCell.font = { bold: true };
-    if (row.statusColor) {
-      statusCell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: toExcelArgb(row.statusColor) }
-      };
-    }
-  });
+    csvWorksheet?.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) {
+        return;
+      }
+
+      const values = row.values as Array<string | number | null | undefined>;
+      const [
+        ,
+        testId,
+        timestamp,
+        environment,
+        keyword,
+        status,
+        passPercentageDisplay,
+        matchDisplay,
+        statusColor,
+        responseTimeMs,
+        httpStatusCode,
+        errorMessage,
+        testDurationSeconds
+      ] = values;
+
+      const excelRow = worksheet.addRow({
+        testId,
+        timestamp,
+        environment,
+        keyword,
+        status,
+        passPercentage: parsePassPercentage(passPercentageDisplay),
+        matchRatio: matchDisplay ?? '',
+        responseTimeMs: parseNumber(responseTimeMs),
+        httpStatusCode: parseNumber(httpStatusCode),
+        errorMessage: (errorMessage ?? '') as string,
+        testDurationSeconds: parseNumber(testDurationSeconds)
+      });
+
+      const statusCell = excelRow.getCell('E');
+      statusCell.font = { bold: true };
+      if (typeof statusColor === 'string' && statusColor.trim()) {
+        statusCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: toExcelArgb(statusColor.trim()) }
+        };
+      }
+    });
+  }
 
   worksheet.getColumn(6).alignment = { horizontal: 'right' };
 
+  ensureResultsDirectory();
   await workbook.xlsx.writeFile(RESULTS_XLSX_FILE);
 };
 
-const queueWorkbookWrite = (): Promise<void> => {
-  workbookWritePromise = workbookWritePromise.then(() => writeWorkbook());
+const queueWorkbookRebuild = (): Promise<void> => {
+  workbookWritePromise = workbookWritePromise.then(() => rebuildWorkbookFromCsv());
   workbookWritePromise = workbookWritePromise.catch((error) => {
-    console.error('Failed to write XLSX results', error);
+    console.error('Failed to rebuild XLSX results', error);
     throw error;
   });
   return workbookWritePromise;
@@ -154,12 +202,10 @@ const queueWorkbookWrite = (): Promise<void> => {
 export const appendResult = async (row: TestResultRow): Promise<void> => {
   ensureResultsFile();
 
-  rows.push(row);
-
   const passPercentageDisplay =
     row.passPercentage === null || Number.isNaN(row.passPercentage)
       ? 'N/A'
-      : `${row.passPercentage.toFixed(2)}%`;
+      : `${(row.passPercentage * 100).toFixed(2)}%`;
   const matchDisplay = `${row.matchedCount}/${row.totalCount}`;
 
   const line = [
@@ -181,7 +227,7 @@ export const appendResult = async (row: TestResultRow): Promise<void> => {
 
   fs.appendFileSync(RESULTS_FILE, `${line}\n`, 'utf-8');
 
-  await queueWorkbookWrite();
+  await queueWorkbookRebuild();
 };
 
 export const getResultsFilePath = (): string => RESULTS_FILE;
