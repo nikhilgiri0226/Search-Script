@@ -1,3 +1,17 @@
+/**
+ * Primary Playwright specification for validating the configurable search API.
+ *
+ * Each keyword/category pair from `test-data/search_queries.json` is executed as an individual Playwright
+ * test. The suite performs the following high-level steps:
+ *   1. Read configuration and supporting datasets (stopwords, aliases, relevance map).
+ *   2. Issue API requests (with optional pagination) respecting concurrency limits/backpressure.
+ *   3. Evaluate each response against quality rules (token matching + relevance expansion).
+ *   4. Record a summary row to both CSV and XLSX and apply the configured fail strategy.
+ *
+ * The goal is to keep the implementation entirely data driven so QA engineers can adjust behaviour
+ * by editing JSON rather than code.
+ */
+
 import { test, expect } from "@playwright/test";
 import fs from "fs";
 import path from "path";
@@ -13,12 +27,14 @@ import {
   AliasGroup,
 } from "../utils/configLoader";
 
+// Shape of a single entry in `test-data/search_queries.json`.
 interface SearchQuery {
   id?: string;
   category: string;
   keyword: string;
 }
 
+// Sub-structure used inside the relevance map for category-specific boosters.
 interface RelevanceEntry {
   synonyms?: string[];
   related?: string[];
@@ -29,10 +45,12 @@ interface RelevanceEntry {
 
 type RelevanceMap = Record<string, RelevanceEntry>;
 
+// Loaded configuration snapshots – kept at module scope so every Playwright test can read them.
 const projectConfig = loadConfig();
 const environmentConfig = getActiveEnvironment();
 const runnerSettings = resolveRunnerSettings();
 const paginationSettings = resolvePaginationSettings();
+// Location of the master keyword list.
 const queriesPath = path.resolve(
   __dirname,
   "..",
@@ -40,6 +58,7 @@ const queriesPath = path.resolve(
   "search_queries.json",
 );
 
+// Fail fast if the dataset is missing – running an empty suite would be misleading.
 if (!fs.existsSync(queriesPath)) {
   throw new Error(`Search queries file not found at ${queriesPath}`);
 }
@@ -50,6 +69,7 @@ const searchQueriesJson = JSON.parse(searchQueriesRaw) as {
 };
 const allSearchQueries = searchQueriesJson.queries ?? [];
 
+// Provide a clear error when the dataset is empty – likely misconfiguration.
 if (allSearchQueries.length === 0) {
   throw new Error("No search queries defined in test-data/search_queries.json");
 }
@@ -85,6 +105,7 @@ const searchQueries = (() => {
   return limited;
 })();
 
+// Enriched vocabulary per category/keyword.
 const relevanceMapPath = path.resolve(
   __dirname,
   "..",
@@ -106,6 +127,7 @@ const stopwords: Set<string> = (() => {
   }
 
   try {
+    // The file is a simple `{ "words": [...] }` payload; tolerate missing/invalid data.
     const parsed = JSON.parse(fs.readFileSync(stopwordsPath, "utf-8")) as {
       words?: string[];
     };
@@ -122,6 +144,7 @@ const stopwords: Set<string> = (() => {
   }
 })();
 
+// Lowercase and split text into alphanumeric tokens.
 const normaliseToWords = (value: string): string[] =>
   value
     .toLowerCase()
@@ -129,6 +152,7 @@ const normaliseToWords = (value: string): string[] =>
     .map((word) => word.trim())
     .filter(Boolean);
 
+// Remove helper words (e.g. "the", "in") so they do not interfere with matching.
 const filterStopwords = (words: string[]): string[] =>
   words.filter((word) => !stopwords.has(word));
 
@@ -166,11 +190,13 @@ const aliasMap: Map<string, Set<string>> = (() => {
   return map;
 })();
 
+// Utility helper to avoid sprinkling setTimeout boilerplate.
 const sleep = (ms: number): Promise<void> =>
   ms > 0
     ? new Promise((resolve) => setTimeout(resolve, ms))
     : Promise.resolve();
 
+// Safely walk a dotted path (e.g. "pagination.totalPages") within a response object.
 const getValueByPath = (source: unknown, path?: string): unknown => {
   if (!path) {
     return undefined;
@@ -194,6 +220,7 @@ const getValueByPath = (source: unknown, path?: string): unknown => {
   return current;
 };
 
+// Normalise values extracted from CSV/JSON into finite numbers (or null when unsuitable).
 const parseNumberValue = (value: unknown): number | null => {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;
@@ -209,6 +236,7 @@ const parseNumberValue = (value: unknown): number | null => {
   return null;
 };
 
+// Similar helper for boolean metadata (supports string "true"/"false").
 const parseBooleanValue = (value: unknown): boolean | null => {
   if (typeof value === "boolean") {
     return value;
@@ -227,6 +255,11 @@ const parseBooleanValue = (value: unknown): boolean | null => {
   return null;
 };
 
+/**
+ * Lightweight async semaphore used to throttle the number of concurrent API calls.
+ * Playwright workers run in parallel, so we share a single semaphore instance to keep
+ * the aggregate request count below `runner.maxInFlightRequests`.
+ */
 class AsyncSemaphore {
   private readonly limit: number;
   private active = 0;
@@ -266,6 +299,7 @@ class AsyncSemaphore {
   }
 }
 
+// Generate a minimal set of plural/singular variants for fuzzy matching (fridge <-> fridges).
 const expandWordForms = (word: string): string[] => {
   const forms = new Set<string>();
   const trimmed = word.trim().toLowerCase();
@@ -290,6 +324,7 @@ const expandWordForms = (word: string): string[] => {
   return [...forms];
 };
 
+// Decide whether two words should be considered equivalent, honouring pluralisation and alias groups.
 const wordsMatch = (a: string, b: string): boolean => {
   const formsA = expandWordForms(a);
   const formsB = expandWordForms(b);
@@ -356,9 +391,11 @@ const collectRelevanceWords = (word: string): string[] => {
   return [...collected];
 };
 
+// Shared semaphore that enforces `runner.maxInFlightRequests` across all workers.
 const requestSemaphore = new AsyncSemaphore(
   Math.max(runnerSettings.maxInFlightRequests ?? 1, 1),
 );
+// Counters updated as the suite progresses; used for logging and fail-strategy calculations.
 const totalKeywords = searchQueries.length;
 let executedKeywords = 0;
 let failedKeywords = 0;
@@ -366,6 +403,7 @@ let abortRun = false;
 let abortReason: string | null = null;
 let reviewKeywords = 0;
 
+// Quality configuration affects how we assign statuses and whether we abort early.
 const failStrategy = projectConfig.quality.failStrategy ?? "always";
 const failThresholdPercent = projectConfig.quality.failThresholdPercent ?? 10;
 
@@ -389,41 +427,51 @@ test.describe("Search API validation", () => {
     }
   });
 
+  // Impose the configured delay between keywords to avoid overwhelming the API.
   test.afterEach(async () => {
     const delay = projectConfig.api.delayBetweenCallsMs;
     await sleep(delay);
   });
 
+  // Dynamically build one Playwright test per keyword.
   for (const [index, query] of searchQueries.entries()) {
     const testId = query.id ?? `TST_${String(index + 1).padStart(3, "0")}`;
 
     test(`[${testId}] should validate API search results for keyword "${query.keyword}"`, async ({
       request,
     }, testInfo) => {
+      // Honour fail-fast/threshold decisions from earlier keywords.
       if (abortRun) {
         test.skip(true, abortReason ?? "Aborted by fail strategy.");
       }
 
+      // Capture timings for response and full test duration metrics.
       const testStart = Date.now();
+      // Combine the environment base URL with the configured endpoint.
       const url = `${environmentConfig.baseUrl}${projectConfig.api.endpoint}`;
 
+      // Build request parameters from environment defaults + the active keyword.
       const baseParams = {
         ...environmentConfig.defaultParams,
         keyword: query.keyword,
       } as Record<string, string | number | boolean>;
 
+      // Aggregate items across pages so quality checks see the full dataset.
       const aggregatedData: Array<Record<string, unknown>> = [];
       let httpStatus = 0;
       let responseTimeMs = 0;
       let pagesFetched = 0;
+      // Track API-reported total counts so we can surface discrepancies in error messages.
       let expectedTotalCountFromPagination: number | null = null;
 
+      // These variables accumulate outcome details that will eventually be logged to CSV/XLSX.
       let statusCategory: StatusCategory = "FAIL";
       let statusDisplay = "FAIL";
       let errorMessage = "";
       let totalCount = 0;
       let matchedCount = 0;
       let passPercentage: number | null = null;
+      // Indicates whether this keyword should fail the Playwright test (per fail strategy).
       let shouldFailThisTest = false;
       let failureRatio = 0;
 
@@ -476,6 +524,7 @@ test.describe("Search API validation", () => {
           const body = (await response.json()) as Record<string, unknown>;
 
           if (pagesFetched === 0) {
+            // Only validate the envelope once; subsequent pages may omit ancillary fields.
             expect(body).toHaveProperty("data");
             expect(typeof body.success).toBe("boolean");
             expect(typeof body.msg).toBe("string");
@@ -514,6 +563,7 @@ test.describe("Search API validation", () => {
             break;
           }
 
+          // Determine whether a follow-up page should be requested.
           let shouldContinue = false;
           const resolvedCurrentPage = pageCurrent ?? currentPage;
           const nextPageCandidate = resolvedCurrentPage + 1;
@@ -552,6 +602,7 @@ test.describe("Search API validation", () => {
             ...filterStopwords(normaliseToWords(query.keyword)),
           ]);
 
+          // Expand the vocabulary breadth-first so relevance additions cascade.
           const processedReferenceWords = new Set<string>();
           const queue: string[] = [...referenceWords];
 
@@ -612,6 +663,7 @@ test.describe("Search API validation", () => {
               const productName = String(item.productName ?? "");
               return `{categoryName: "${categoryName}", productName: "${productName}"}`;
             });
+            // Include a short mismatch sample to aid downstream triage.
             const baseMessage = `Matched ${matchedCount} of ${data.length} item(s). Sample mismatches: ${sample.join(", ")}`;
             if (
               expectedTotalCountFromPagination !== null &&
@@ -634,6 +686,7 @@ test.describe("Search API validation", () => {
         ((Date.now() - testStart) / 1000).toFixed(2),
       );
 
+      // Track whether this keyword contributes to aggregate statistics (review cases are omitted).
       let countedTowardsStats = false;
       if (statusCategory !== "REVIEW") {
         countedTowardsStats = true;
@@ -642,6 +695,7 @@ test.describe("Search API validation", () => {
 
       if (statusCategory === "FAIL") {
         failedKeywords += 1;
+        // Maintain the running failure percentage so threshold/fail-fast logic can act on it.
         failureRatio =
           executedKeywords > 0 ? (failedKeywords / executedKeywords) * 100 : 0;
         const passRateDisplay =
@@ -654,6 +708,7 @@ test.describe("Search API validation", () => {
           `Keyword '${query.keyword}' failed quality checks (${passRateDisplay}% pass rate).`;
         expect.soft(statusCategory, failMessage).toBe("PASS");
 
+        // Fail strategy controls how aggressively the suite reacts to a failed keyword.
         switch (failStrategy) {
           case "fail-fast":
             abortRun = true;
@@ -689,6 +744,7 @@ test.describe("Search API validation", () => {
         }
       }
 
+      // Append a row to the CSV immediately; XLSX rebuild is deferred in the logger.
       await appendResult({
         testId,
         timestamp: new Date().toISOString(),
@@ -713,12 +769,14 @@ test.describe("Search API validation", () => {
         executedKeywords % runnerSettings.batchSize === 0 &&
         executedKeywords < totalKeywords
       ) {
+        // Optional batch pause provides extra backpressure for large suites.
         await new Promise((resolve) =>
           setTimeout(resolve, runnerSettings.batchPauseMs),
         );
       }
 
       if (statusCategory === "REVIEW") {
+        // Playwright will register this test as skipped while still logging the outcome.
         reviewKeywords += 1;
         test.skip(
           true,
@@ -726,6 +784,7 @@ test.describe("Search API validation", () => {
         );
       }
 
+      // If the active fail strategy dictates a hard failure, surface it to Playwright now.
       if (shouldFailThisTest) {
         throw new Error(
           errorMessage ||
