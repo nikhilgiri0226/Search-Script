@@ -367,10 +367,13 @@ const failThresholdPercent = projectConfig.quality.failThresholdPercent ?? 10;
 test.describe("Search API validation", () => {
   test.afterAll(async () => {
     const processedKeywords = executedKeywords + reviewKeywords;
+    const workerLabel =
+      typeof process.env.TEST_WORKER_INDEX === "string"
+        ? `worker ${process.env.TEST_WORKER_INDEX}`
+        : "worker";
     console.info(
-      `[runner] Keyword summary: processed ${processedKeywords}/${totalKeywords} ` +
-        `(quality failures: ${failedKeywords}, review required: ${reviewKeywords}, ` +
-        `skipped due to abort: ${Math.max(totalKeywords - processedKeywords, 0)}).`,
+      `[runner][${workerLabel}] Keywords processed: ${processedKeywords} ` +
+        `(quality failures: ${failedKeywords}, review required: ${reviewKeywords}).`,
     );
 
     try {
