@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
-import ExcelJS from 'exceljs';
+import fs from "fs";
+import path from "path";
+import ExcelJS from "exceljs";
 
-import { StatusCategory, resolveResultsSettings } from './configLoader';
+import { StatusCategory, resolveResultsSettings } from "./configLoader";
 
 export interface TestResultRow {
   testId: string;
@@ -21,9 +21,10 @@ export interface TestResultRow {
   testDurationSeconds: number;
 }
 
-const RESULTS_DIR = path.resolve(__dirname, '..', 'results');
+const RESULTS_DIR = path.resolve(__dirname, "..", "results");
 
-const formatDateComponent = (value: number): string => value.toString().padStart(2, '0');
+const formatDateComponent = (value: number): string =>
+  value.toString().padStart(2, "0");
 
 const deriveRunStamp = (): string => {
   const now = new Date();
@@ -35,41 +36,51 @@ const deriveRunStamp = (): string => {
   return `${month}-${day}-${year}_${hour}:${minute}`;
 };
 
-const RUN_STAMP = (process.env.RESULT_RUN_STAMP?.trim() || '') || deriveRunStamp();
+const RUN_STAMP =
+  process.env.RESULT_RUN_STAMP?.trim() || "" || deriveRunStamp();
 
 const RESULTS_FILE = path.join(RESULTS_DIR, `result_${RUN_STAMP}.csv`);
 const RESULTS_XLSX_FILE = path.join(RESULTS_DIR, `result_${RUN_STAMP}.xlsx`);
 const resultsSettings = resolveResultsSettings();
 
 const HEADER = [
-  'Test ID',
-  'Timestamp',
-  'Environment',
-  'Keyword',
-  'Status',
-  'Pass Percentage (%)',
-  'Matched/Total',
-  'Status Color',
-  'Response Time (ms)',
-  'HTTP Status Code',
-  'Error Message',
-  'Test Duration (s)'
-].join(',');
+  "Test ID",
+  "Timestamp",
+  "Environment",
+  "Keyword",
+  "Status",
+  "Pass Percentage (%)",
+  "Matched/Total",
+  "Status Color",
+  "Response Time (ms)",
+  "HTTP Status Code",
+  "Error Message",
+  "Test Duration (s)",
+].join(",");
 
 const escapeCsv = (value: string | number): string => {
-  const strValue = String(value ?? '');
-  if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
+  const strValue = String(value ?? "");
+  if (
+    strValue.includes(",") ||
+    strValue.includes('"') ||
+    strValue.includes("\n")
+  ) {
     return `"${strValue.replace(/"/g, '""')}"`;
   }
   return strValue;
 };
 
 const toExcelArgb = (hex: string): string => {
-  const normalized = hex.replace('#', '').padStart(6, '0').slice(0, 6).toUpperCase();
+  const normalized = hex
+    .replace("#", "")
+    .padStart(6, "0")
+    .slice(0, 6)
+    .toUpperCase();
   return `FF${normalized}`;
 };
 
-const RESULT_FILE_REGEX = /^result_(\d{2})-(\d{2})-(\d{4})_(\d{2}):(\d{2})\.(csv|xlsx)$/;
+const RESULT_FILE_REGEX =
+  /^result_(\d{2})-(\d{2})-(\d{4})_(\d{2}):(\d{2})\.(csv|xlsx)$/;
 
 interface RunEntry {
   baseName: string;
@@ -85,7 +96,15 @@ const parseRunEntry = (fileName: string): RunEntry | null => {
 
   const [, month, day, year, hour, minute] = match;
   const baseName = `result_${month}-${day}-${year}_${hour}:${minute}`;
-  const timestamp = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute)));
+  const timestamp = new Date(
+    Date.UTC(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+    ),
+  );
 
   if (Number.isNaN(timestamp.getTime())) {
     return null;
@@ -94,15 +113,19 @@ const parseRunEntry = (fileName: string): RunEntry | null => {
   return {
     baseName,
     timestamp,
-    files: [fileName]
+    files: [fileName],
   };
 };
 
+// Enforce the retention policy by deleting stale CSV/XLSX pairs before a new run starts writing.
 const pruneOldResults = (): void => {
   const retainDays = resultsSettings.retainDays ?? 0;
   const retainRuns = resultsSettings.retainRuns ?? 0;
 
-  if ((retainDays <= 0 || Number.isNaN(retainDays)) && (retainRuns <= 0 || Number.isNaN(retainRuns))) {
+  if (
+    (retainDays <= 0 || Number.isNaN(retainDays)) &&
+    (retainRuns <= 0 || Number.isNaN(retainRuns))
+  ) {
     return;
   }
 
@@ -130,7 +153,9 @@ const pruneOldResults = (): void => {
     return;
   }
 
-  const runs = Array.from(runMap.values()).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  const runs = Array.from(runMap.values()).sort(
+    (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+  );
   const now = new Date();
   const toDelete = new Set<string>();
 
@@ -189,16 +214,18 @@ const ensureResultsFile = (): void => {
   }
 
   if (!fs.existsSync(RESULTS_FILE)) {
-    fs.writeFileSync(RESULTS_FILE, `${HEADER}\n`, 'utf-8');
+    fs.writeFileSync(RESULTS_FILE, `${HEADER}\n`, "utf-8");
   }
 };
 
-const parsePassPercentage = (value: string | number | null | undefined): number | null => {
+const parsePassPercentage = (
+  value: string | number | null | undefined,
+): number | null => {
   if (value === null || value === undefined) {
     return null;
   }
 
-  const strValue = String(value).replace('%', '').trim();
+  const strValue = String(value).replace("%", "").trim();
   if (!strValue) {
     return null;
   }
@@ -207,33 +234,40 @@ const parsePassPercentage = (value: string | number | null | undefined): number 
   return Number.isFinite(numeric) ? numeric / 100 : null;
 };
 
-const parseNumber = (value: string | number | null | undefined): number | null => {
-  if (value === null || value === undefined || value === '') {
+const parseNumber = (
+  value: string | number | null | undefined,
+): number | null => {
+  if (value === null || value === undefined || value === "") {
     return null;
   }
 
-  const numeric = typeof value === 'number' ? value : Number(value);
+  const numeric = typeof value === "number" ? value : Number(value);
   return Number.isFinite(numeric) ? numeric : null;
 };
 
 const rebuildWorkbookFromCsv = async (): Promise<void> => {
   const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('Results');
+  const worksheet = workbook.addWorksheet("Results");
 
   worksheet.columns = [
-    { header: 'Test ID', key: 'testId', width: 12 },
-    { header: 'Timestamp', key: 'timestamp', width: 25 },
-    { header: 'Environment', key: 'environment', width: 15 },
-    { header: 'Keyword', key: 'keyword', width: 45 },
-    { header: 'Status', key: 'status', width: 20 },
-    { header: 'Pass Percentage', key: 'passPercentage', width: 18, style: { numFmt: '0.00%' } },
-    { header: 'Matched/Total', key: 'matchRatio', width: 15 },
-    { header: 'Response Time (ms)', key: 'responseTimeMs', width: 18 },
-    { header: 'HTTP Status Code', key: 'httpStatusCode', width: 18 },
-    { header: 'Error Message', key: 'errorMessage', width: 60 },
-    { header: 'Test Duration (s)', key: 'testDurationSeconds', width: 18 }
+    { header: "Test ID", key: "testId", width: 12 },
+    { header: "Timestamp", key: "timestamp", width: 25 },
+    { header: "Environment", key: "environment", width: 15 },
+    { header: "Keyword", key: "keyword", width: 45 },
+    { header: "Status", key: "status", width: 20 },
+    {
+      header: "Pass Percentage",
+      key: "passPercentage",
+      width: 18,
+      style: { numFmt: "0.00%" },
+    },
+    { header: "Matched/Total", key: "matchRatio", width: 15 },
+    { header: "Response Time (ms)", key: "responseTimeMs", width: 18 },
+    { header: "HTTP Status Code", key: "httpStatusCode", width: 18 },
+    { header: "Error Message", key: "errorMessage", width: 60 },
+    { header: "Test Duration (s)", key: "testDurationSeconds", width: 18 },
   ];
-  worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+  worksheet.views = [{ state: "frozen", ySplit: 1 }];
 
   if (fs.existsSync(RESULTS_FILE)) {
     const csvWorkbook = new ExcelJS.Workbook();
@@ -259,7 +293,7 @@ const rebuildWorkbookFromCsv = async (): Promise<void> => {
         responseTimeMs,
         httpStatusCode,
         errorMessage,
-        testDurationSeconds
+        testDurationSeconds,
       ] = values;
 
       const excelRow = worksheet.addRow({
@@ -269,31 +303,32 @@ const rebuildWorkbookFromCsv = async (): Promise<void> => {
         keyword,
         status,
         passPercentage: parsePassPercentage(passPercentageDisplay),
-        matchRatio: matchDisplay ?? '',
+        matchRatio: matchDisplay ?? "",
         responseTimeMs: parseNumber(responseTimeMs),
         httpStatusCode: parseNumber(httpStatusCode),
-        errorMessage: (errorMessage ?? '') as string,
-        testDurationSeconds: parseNumber(testDurationSeconds)
+        errorMessage: (errorMessage ?? "") as string,
+        testDurationSeconds: parseNumber(testDurationSeconds),
       });
 
-      const statusCell = excelRow.getCell('E');
+      const statusCell = excelRow.getCell("E");
       statusCell.font = { bold: true };
-      if (typeof statusColor === 'string' && statusColor.trim()) {
+      if (typeof statusColor === "string" && statusColor.trim()) {
         statusCell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: toExcelArgb(statusColor.trim()) }
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: toExcelArgb(statusColor.trim()) },
         };
       }
     });
   }
 
-  worksheet.getColumn(6).alignment = { horizontal: 'right' };
+  worksheet.getColumn(6).alignment = { horizontal: "right" };
 
   ensureResultsDirectory();
   await workbook.xlsx.writeFile(RESULTS_XLSX_FILE);
 };
 
+// Chain workbook rebuilds so multiple append operations can run back-to-back without racing.
 const queueWorkbookRebuild = (): void => {
   workbookWritePromise = workbookWritePromise
     .then(() => rebuildWorkbookFromCsv())
@@ -309,7 +344,7 @@ export const appendResult = async (row: TestResultRow): Promise<void> => {
 
   const passPercentageDisplay =
     row.passPercentage === null || Number.isNaN(row.passPercentage)
-      ? 'N/A'
+      ? "N/A"
       : `${row.passPercentage.toFixed(2)}%`;
   const matchDisplay = `${row.matchedCount}/${row.totalCount}`;
 
@@ -321,16 +356,16 @@ export const appendResult = async (row: TestResultRow): Promise<void> => {
     row.status,
     passPercentageDisplay,
     matchDisplay,
-    row.statusColor ?? '',
+    row.statusColor ?? "",
     row.responseTimeMs,
     row.httpStatusCode,
     row.errorMessage,
-    row.testDurationSeconds
+    row.testDurationSeconds,
   ]
     .map(escapeCsv)
-    .join(',');
+    .join(",");
 
-  fs.appendFileSync(RESULTS_FILE, `${line}\n`, 'utf-8');
+  fs.appendFileSync(RESULTS_FILE, `${line}\n`, "utf-8");
 
   queueWorkbookRebuild();
 };
@@ -339,6 +374,7 @@ export const getResultsFilePath = (): string => RESULTS_FILE;
 
 export const getResultsWorkbookPath = (): string => RESULTS_XLSX_FILE;
 
+// Await any outstanding rebuild to ensure the XLSX mirrors the CSV before the process exits.
 export const flushResults = async (): Promise<void> => {
   await workbookWritePromise;
   if (lastWorkbookError) {

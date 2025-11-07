@@ -107,6 +107,7 @@ export interface ProjectConfig {
   alerts?: AlertsConfig;
 }
 
+// Sensible defaults ensure optional sections can be omitted safely in config.json.
 const DEFAULT_QUALITY: QualityConfig = {
   partialPassPercentage: 90,
   fullPassPercentage: 100,
@@ -298,6 +299,7 @@ export const resolvePaginationSettings = (): PaginationConfig => {
   return config.api.pagination ?? DEFAULT_PAGINATION;
 };
 
+// Load the optional global alias configuration; a missing or malformed file simply yields an empty set.
 export const loadAliasesConfig = (
   aliasesPath = path.resolve(__dirname, "..", "config", "aliases.json"),
 ): AliasesConfig => {

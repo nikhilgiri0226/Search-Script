@@ -54,6 +54,7 @@ if (allSearchQueries.length === 0) {
   throw new Error("No search queries defined in test-data/search_queries.json");
 }
 
+// Convert the optional query limit into a positive integer (null means “no limit”).
 const resolveQueryLimit = (limit: unknown): number | null => {
   if (typeof limit !== "number" || !Number.isFinite(limit)) {
     return null;
@@ -64,6 +65,7 @@ const resolveQueryLimit = (limit: unknown): number | null => {
 
 const effectiveQueryLimit = resolveQueryLimit(runnerSettings.queryLimit);
 
+// Honour the derived limit so long suites can be pared down for smoke runs.
 const searchQueries = (() => {
   if (effectiveQueryLimit === null) {
     return allSearchQueries;
@@ -130,6 +132,7 @@ const normaliseToWords = (value: string): string[] =>
 const filterStopwords = (words: string[]): string[] =>
   words.filter((word) => !stopwords.has(word));
 
+// Aliases are cross-cutting synonym groups that complement the per-category relevance map.
 const aliasesConfig = loadAliasesConfig();
 
 const aliasMap: Map<string, Set<string>> = (() => {
@@ -151,6 +154,7 @@ const aliasMap: Map<string, Set<string>> = (() => {
         map.set(word, new Set<string>());
       }
       const set = map.get(word)!;
+      // Ensure each word in the group points to every other word (bidirectional synonyms).
       for (const other of normalizedWords) {
         if (other !== word) {
           set.add(other);
@@ -323,6 +327,7 @@ const collectRelevanceWords = (word: string): string[] => {
   const collected = new Set<string>();
 
   for (const form of expandWordForms(word)) {
+    // Start with global aliases so every category benefits from the shared vocabulary.
     const aliasMatches = aliasMap.get(form);
     if (aliasMatches) {
       for (const alias of aliasMatches) {
@@ -371,6 +376,7 @@ test.describe("Search API validation", () => {
       typeof process.env.TEST_WORKER_INDEX === "string"
         ? `worker ${process.env.TEST_WORKER_INDEX}`
         : "worker";
+    // Log per-worker stats so we can correlate with the aggregated CSV.
     console.info(
       `[runner][${workerLabel}] Keywords processed: ${processedKeywords} ` +
         `(quality failures: ${failedKeywords}, review required: ${reviewKeywords}).`,
@@ -433,6 +439,7 @@ test.describe("Search API validation", () => {
 
         let currentPage = pagination.startPage ?? 1;
 
+        // Keep fetching pages until the configured mode/metadata says to stop.
         while (true) {
           const paramsForRequest: Record<string, string | number | boolean> = {
             ...baseParams,
@@ -641,6 +648,7 @@ test.describe("Search API validation", () => {
           passPercentage === null || Number.isNaN(passPercentage)
             ? "N/A"
             : passPercentage.toFixed(2);
+        // Soft-assert so Playwright records the failure but the suite continues (matching CSV output).
         const failMessage =
           errorMessage ||
           `Keyword '${query.keyword}' failed quality checks (${passRateDisplay}% pass rate).`;
