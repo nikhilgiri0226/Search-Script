@@ -1,34 +1,183 @@
 {
   "aliases": [
     {
-      "words": [
-        "fridge",
-        "refrigerator"
-      ]
+      "words": ["fridge", "fridges", "refrigerator", "refrigerators", "refridgerator", "refridgerators", "refrigerater", "refrigeraters", "frige", "fridg"]
     },
     {
-      "words": [
-        "freezer",
-        "refrigerator"
-      ]
+      "words": ["freezer", "freezers", "deep freezer", "deep freezers", "upright freezer", "upright freezers", "chest freezer", "chest freezers", "garage freezer", "garage freezers"]
     },
     {
-      "words": [
-        "undercounter",
-        "under counter"
-      ]
+      "words": ["fridge freezer", "fridge freezers", "refrigerator freezer", "refrigerator freezers", "freezer refrigerator", "freezer refrigerators"]
     },
     {
-      "words": [
-        "built-in",
-        "built in"
-      ]
+        "words": [ "disposer", "disposers", "disposal", "disposals", "garbage disposal", "garbage disposals", "food waste disposer", "food waste disposers",
+    "waste disposer",
+    "waste disposers",
+    "waste disposal",
+    "waste disposals",
+    "food disposer",
+    "food disposers",
+    "kitchen disposer",
+    "kitchen disposers",
+    "sink disposer",
+    "sink disposers",
+    "sink disposal",
+    "sink disposals",
+    "continuous feed disposer",
+    "continuous feed disposers",
+    "continuous feed disposal",
+    "continuous feed disposals",
+    "batch feed disposer",
+    "batch feed disposers",
+    "batch feed disposal",
+    "batch feed disposals",
+    "garburator",
+    "garburators",
+    "garburetor",
+    "garburetors",
+    "grinder",
+    "grinders",
+    "food grinder",
+    "food grinders",
+    "kitchen grinder",
+    "kitchen grinders",
+    "insinkerator",
+    "insinkerators",
+    "in sink erator",
+    "in-sink-erator",
+    "waste grinder",
+    "waste grinders",
+    "organic waste disposer",
+    "organic waste disposers",
+    "trash disposal",
+    "trash disposals",
+    "trash grinder",
+    "trash grinders",
+    "garbage grinder",
+    "garbage grinders",
+    "food crusher",
+    "food crushers",
+    "kitchen crusher",
+    "kitchen crushers",
+    "disposl",
+    "disposel",
+    "dispsoer",
+    "dispser"
+        ]
     },
     {
-      "words": [
-        "wine",
-        "beverage"
-      ]
+      "words": ["wine cooler", "wine coolers", "wine fridge", "wine fridges", "wine refrigerator", "wine refrigerators", "beverage cooler", "beverage coolers", "beverage fridge", "beverage fridges", "wine cellar", "wine cellars"]
+    },
+    {
+      "words": ["ice maker", "ice makers", "icemaker", "icemakers", "ice machine", "ice machines", "ice maker machine", "ice maker machines"]
+    },
+    {
+      "words": ["kegerator", "kegerators", "beer cooler", "beer coolers", "beer fridge", "beer fridges", "beer dispenser", "beer dispensers"]
+    },
+    {
+      "words": ["dishwasher", "dishwashers", "dish washer", "dish washers", "dish-washer", "dish-washers"]
+    },
+    {
+      "words": ["microwave", "microwaves", "micro wave", "micro waves", "micowave", "micowaves", "microwave oven", "microwave ovens"]
+    },
+    {
+      "words": ["range", "ranges", "stove", "stoves", "cooker", "cookers", "oven range", "oven ranges"]
+    },
+    {
+      "words": ["cooktop", "cooktops", "stovetop", "stovetops", "hob", "hobs", "cook top", "cook tops"]
+    },
+    {
+      "words": ["wall oven", "wall ovens", "built-in oven", "built-in ovens", "built in oven", "built in ovens", "wall-oven", "wall-ovens"]
+    },
+    {
+      "words": ["range hood", "range hoods", "hood", "hoods", "vent hood", "vent hoods", "exhaust hood", "exhaust hoods", "chimney hood", "chimney hoods"]
+    },
+    {
+      "words": ["coffee machine", "coffee machines", "coffee maker", "coffee makers", "espresso machine", "espresso machines", "espresso maker", "espresso makers", "barista machine", "barista machines"]
+    },
+    {
+      "words": ["washer", "washers", "washing machine", "washing machines", "laundry washer", "laundry washers"]
+    },
+    {
+      "words": ["dryer", "dryers", "laundry dryer", "laundry dryers", "clothes dryer", "clothes dryers"]
+    },
+    {
+      "words": ["washer dryer", "washer dryers", "laundry center", "laundry centers", "stacked laundry", "stacked laundries", "stacked washer dryer", "stacked washer dryers"]
+    },
+    {
+      "words": ["built-in", "built-in", "built in", "built ins", "built-in unit", "built-in units", "builtin", "builtins"]
+    },
+    {
+      "words": ["undercounter", "undercounters", "under counter", "under counters", "under-counter", "under-counters"]
+    },
+    {
+      "words": ["counter depth", "counter depths", "counter-depth", "counter-depths", "counterdepth", "counterdepths"]
+    },
+    {
+      "words": ["side by side", "side by sides", "side-by-side", "side-by-sides", "sidebyside", "sidebysides"]
+    },
+    {
+      "words": ["french door", "french doors", "french-door", "french-doors", "frenchdoor", "frenchdoors"]
+    },
+    {
+      "words": ["top freezer", "top freezers", "top-freezer", "top-freezers", "topfreezer", "topfreezers"]
+    },
+    {
+      "words": ["bottom freezer", "bottom freezers", "bottom-freezer", "bottom-freezers", "bottomfreezer", "bottomfreezers"]
+    },
+    {
+      "words": ["compact", "compacts", "mini", "minis", "small", "smalls"]
+    },
+    {
+      "words": ["outdoor grill", "cooktop", "outdoor grills", "bbq grill", "bbq grills", "barbecue", "barbecues", "gas grill", "gas grills"]
+    },
+    {
+      "words": ["hood insert", "hood inserts", "range hood insert", "range hood inserts", "blower insert", "blower inserts"]
+    },
+    {
+      "words": ["smart", "smart appliances", "wi-fi", "wifi", "wi fi"]
+    },
+    {
+      "words": ["electric", "electrics", "elec", "electic"]
+    },
+    {
+      "words": ["gas", "gas", "natural gas", "propane", "lp gas"]
+    },
+    {
+      "words": ["steam oven", "steam ovens", "steam-oven", "steam-ovens", "steamoven", "steamovens"]
+    },
+    {
+      "words": ["dehumidifier", "dehumidifiers", "humidifier", "humidifiers", "air purifier", "air purifiers"]
+    },
+    {
+      "words": ["oven", "ovens", "baking oven", "baking ovens", "cook oven", "cook ovens"]
+    },
+    {
+      "words": ["griddle", "griddles", "flat top", "flat tops", "flattop", "flattops"]
+    },
+    {
+      "words": ["warming drawer", "warming drawers", "warming-drawer", "warming-drawers", "warmingdrawer", "warmingdrawers"]
+    },
+    {
+      "words": ["double oven", "double ovens", "double-oven", "double-ovens", "doubleoven", "doubleovens"]
+    },
+    {
+      "words": ["dual fuel", "dual fuels", "dual-fuel", "dual-fuels", "dualfuel", "dualfuels"]
+    },
+    {
+      "words": ["stainless", "stainless steel", "ss"]
+    },
+    {
+      "words": ["panel ready", "panel readies", "panel-ready", "panel-readies", "panelready", "panelreadies"]
+    },
+    {
+      "words": ["vent", "vents", "ventilation", "blower", "blowers"]
+    },
+    {
+      "words": ["ice", "ices", "icy", "icey"]
+    },
+    {
+      "words": ["temperature", "temperatures", "temp", "temperature control"]
     }
   ]
 }
