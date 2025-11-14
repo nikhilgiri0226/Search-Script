@@ -1,0 +1,454 @@
+{
+  "queries": [
+    {
+      "id": "TST_001",
+      "category": "Refrigerator",
+      "keyword": "refrigerator"
+    },
+    {
+      "id": "TST_002",
+      "category": "Refrigerator",
+      "keyword": "whirlpool refrigerator"
+    },
+    {
+      "id": "TST_003",
+      "category": "Refrigerator",
+      "keyword": "samsung refrigerator"
+    },
+    {
+      "id": "TST_004",
+      "category": "Refrigerator",
+      "keyword": "refrigerator sale"
+    },
+    {
+      "id": "TST_005",
+      "category": "Refrigerator",
+      "keyword": "frigidaire refrigerator"
+    },
+    {
+      "id": "TST_006",
+      "category": "Refrigerator",
+      "keyword": "lg refrigerator"
+    },
+    {
+      "id": "TST_007",
+      "category": "Refrigerator",
+      "keyword": "counter depth refrigerator"
+    },
+    {
+      "id": "TST_008",
+      "category": "Refrigerator",
+      "keyword": "ge refrigerator"
+    },
+    {
+      "id": "TST_160",
+      "category": "Wine Cooler",
+      "keyword": "wine and beverage cooler"
+    },
+    {
+      "id": "TST_161",
+      "category": "Wine Cooler",
+      "keyword": "wine cellar cooling unit"
+    },
+    {
+      "id": "TST_162",
+      "category": "Wine Cooler",
+      "keyword": "wine cooler cabinet"
+    },
+    {
+      "id": "TST_163",
+      "category": "Wine Cooler",
+      "keyword": "beverage wine cooler refrigerator"
+    },
+    {
+      "id": "TST_164",
+      "category": "Wine Cooler",
+      "keyword": "haier wine cooler"
+    },
+    {
+      "id": "TST_165",
+      "category": "Wine Cooler",
+      "keyword": "wine beverage cooler"
+    },
+    {
+      "id": "TST_166",
+      "category": "Wine Cooler",
+      "keyword": "wine fridge cooler"
+    },
+    {
+      "id": "TST_167",
+      "category": "Wine Cooler",
+      "keyword": "24 bottle wine cooler with glass storage"
+    },
+    {
+      "id": "TST_168",
+      "category": "Wine Cooler",
+      "keyword": "wine and beer cooler"
+    },
+    {
+      "id": "TST_169",
+      "category": "Wine Cooler",
+      "keyword": "wine bottle cooler"
+    },
+    {
+      "id": "TST_170",
+      "category": "Wine Cooler",
+      "keyword": "wine cellar cooling systems"
+    },
+    {
+      "id": "TST_171",
+      "category": "Wine Cooler",
+      "keyword": "zephyr wine cooler"
+    },
+    {
+      "id": "TST_172",
+      "category": "Wine Cooler",
+      "keyword": "avanti wine cooler"
+    },
+    {
+      "id": "TST_173",
+      "category": "Wine Cooler",
+      "keyword": "built in wine cooler"
+    },
+    {
+      "id": "TST_174",
+      "category": "Wine Cooler",
+      "keyword": "countertop wine cooler"
+    },
+    {
+      "id": "TST_641",
+      "category": "Trash Compactor",
+      "keyword": "trash bin compactor"
+    },
+    {
+      "id": "TST_642",
+      "category": "Trash Compactor",
+      "keyword": "whirlpool trash compactor"
+    },
+    {
+      "id": "TST_643",
+      "category": "Trash Compactor",
+      "keyword": "ge trash compactor"
+    },
+    {
+      "id": "TST_644",
+      "category": "Trash Compactor",
+      "keyword": "garbage compactor"
+    },
+    {
+      "id": "TST_645",
+      "category": "Trash Compactor",
+      "keyword": "kitchen garbage compactor"
+    },
+    {
+      "id": "TST_646",
+      "category": "Trash Compactor",
+      "keyword": "home garbage compactor"
+    },
+    {
+      "id": "TST_647",
+      "category": "Trash Compactor",
+      "keyword": "garbage can compactor"
+    },
+    {
+      "id": "TST_648",
+      "category": "Trash Compactor",
+      "keyword": "garbage can trash compactor"
+    },
+    {
+      "id": "TST_649",
+      "category": "Trash Compactor",
+      "keyword": "garbage compactor whirlpool"
+    },
+    {
+      "id": "TST_650",
+      "category": "Trash Compactor",
+      "keyword": "whirlpool garbage compactor"
+    },
+    {
+      "id": "TST_651",
+      "category": "Trash Compactor",
+      "keyword": "ge garbage compactor"
+    },
+    {
+      "id": "TST_652",
+      "category": "Outdoor Grill",
+      "keyword": "grill"
+    },
+    {
+      "id": "TST_653",
+      "category": "Outdoor Grill",
+      "keyword": "bbq grill"
+    },
+    {
+      "id": "TST_654",
+      "category": "Outdoor Grill",
+      "keyword": "grills"
+    },
+    {
+      "id": "TST_655",
+      "category": "Outdoor Grill",
+      "keyword": "charcoal grill"
+    },
+    {
+      "id": "TST_656",
+      "category": "Outdoor Grill",
+      "keyword": "electric grill"
+    },
+    {
+      "id": "TST_657",
+      "category": "Outdoor Grill",
+      "keyword": "char grill"
+    },
+    {
+      "id": "TST_658",
+      "category": "Outdoor Grill",
+      "keyword": "charcoal bbq grill"
+    },
+    {
+      "id": "TST_659",
+      "category": "Outdoor Grill",
+      "keyword": "electric bbq grill"
+    },
+    {
+      "id": "TST_660",
+      "category": "Outdoor Grill",
+      "keyword": "gas grills"
+    },
+    {
+      "id": "TST_661",
+      "category": "Outdoor Grill",
+      "keyword": "gas bbq grills"
+    },
+    {
+      "id": "TST_662",
+      "category": "Outdoor Grill",
+      "keyword": "propane grill"
+    },
+    {
+      "id": "TST_663",
+      "category": "Outdoor Grill",
+      "keyword": "indoor grill"
+    },
+    {
+      "id": "TST_664",
+      "category": "Outdoor Grill",
+      "keyword": "outdoor grill"
+    },
+    {
+      "id": "TST_665",
+      "category": "Outdoor Grill",
+      "keyword": "backyard grill"
+    },
+    {
+      "id": "TST_666",
+      "category": "Outdoor Grill",
+      "keyword": "barbeque grill"
+    },
+    {
+      "id": "TST_667",
+      "category": "Outdoor Grill",
+      "keyword": "barbecue grill"
+    },
+    {
+      "id": "TST_668",
+      "category": "Outdoor Grill",
+      "keyword": "bbq grills"
+    },
+    {
+      "id": "TST_669",
+      "category": "Kitchenette",
+      "keyword": "small kitchenette"
+    },
+    {
+      "id": "TST_670",
+      "category": "Kitchenette",
+      "keyword": "compact kitchen"
+    },
+    {
+      "id": "TST_671",
+      "category": "Kitchenette",
+      "keyword": "little kitchenette"
+    },
+    {
+      "id": "TST_672",
+      "category": "Washer Dryer",
+      "keyword": "speed queen washer"
+    },
+    {
+      "id": "TST_673",
+      "category": "Washer Dryer",
+      "keyword": "washing machine"
+    },
+    {
+      "id": "TST_674",
+      "category": "Washer Dryer",
+      "keyword": "washer and dryer"
+    },
+    {
+      "id": "TST_675",
+      "category": "Washer Dryer",
+      "keyword": "washer and dryer set"
+    },
+    {
+      "id": "TST_676",
+      "category": "Washer Dryer",
+      "keyword": "washer dryer combo"
+    },
+    {
+      "id": "TST_677",
+      "category": "Washer Dryer",
+      "keyword": "stackable washer and dryer"
+    },
+    {
+      "id": "TST_678",
+      "category": "Washer Dryer",
+      "keyword": "washer"
+    },
+    {
+      "id": "TST_679",
+      "category": "Washer Dryer",
+      "keyword": "speed queen washer and dryer"
+    },
+    {
+      "id": "TST_680",
+      "category": "Washer Dryer",
+      "keyword": "whirlpool washer"
+    },
+    {
+      "id": "TST_681",
+      "category": "Washer Dryer",
+      "keyword": "portable washing machine"
+    },
+    {
+      "id": "TST_682",
+      "category": "Washer Dryer",
+      "keyword": "washer dryer set"
+    },
+    {
+      "id": "TST_683",
+      "category": "Washer Dryer",
+      "keyword": "lg washer and dryer"
+    },
+    {
+      "id": "TST_684",
+      "category": "Washer Dryer",
+      "keyword": "maytag washer"
+    },
+    {
+      "id": "TST_685",
+      "category": "Washer Dryer",
+      "keyword": "samsung washer and dryer"
+    },
+    {
+      "id": "TST_686",
+      "category": "Washer Dryer",
+      "keyword": "washer and dryer in one"
+    },
+    {
+      "id": "TST_687",
+      "category": "Washer Dryer",
+      "keyword": "washer and dryer sets"
+    },
+    {
+      "id": "TST_688",
+      "category": "Washer Dryer",
+      "keyword": "lg washer"
+    },
+    {
+      "id": "TST_689",
+      "category": "Washer Dryer",
+      "keyword": "portable washer and dryer"
+    },
+    {
+      "id": "TST_690",
+      "category": "Washer Dryer",
+      "keyword": "samsung washer"
+    },
+    {
+      "id": "TST_691",
+      "category": "Washer Dryer",
+      "keyword": "all in one washer dryer"
+    },
+    {
+      "id": "TST_692",
+      "category": "Washer Dryer",
+      "keyword": "washer machine"
+    },
+    {
+      "id": "TST_693",
+      "category": "Washer Dryer",
+      "keyword": "ge washer dryer combo"
+    },
+    {
+      "id": "TST_694",
+      "category": "Washer Dryer",
+      "keyword": "lg washer and"
+    },
+    {
+      "id": "TST_695",
+      "category": "Washer Dryer",
+      "keyword": "lg washer dryer combo"
+    },
+    {
+      "id": "TST_696",
+      "category": "Washer Dryer",
+      "keyword": "maytag washer and dryer"
+    },
+    {
+      "id": "TST_697",
+      "category": "Washer Dryer",
+      "keyword": "lg washing machine"
+    },
+    {
+      "id": "TST_698",
+      "category": "Washer Dryer",
+      "keyword": "samsung washing machine"
+    },
+    {
+      "id": "TST_699",
+      "category": "Washer Dryer",
+      "keyword": "portable washing machine and dryer"
+    },
+    {
+      "id": "TST_700",
+      "category": "Washer Dryer",
+      "keyword": "washing machines"
+    },
+    {
+      "id": "TST_701",
+      "category": "Washer Dryer",
+      "keyword": "washing machines on sale"
+    },
+    {
+      "id": "TST_702",
+      "category": "Washer Dryer",
+      "keyword": "whirlpool washing machine"
+    },
+    {
+      "id": "TST_703",
+      "category": "Washer Dryer",
+      "keyword": "ge washing machine"
+    },
+    {
+      "id": "TST_704",
+      "category": "Washer Dryer",
+      "keyword": "speed queen washing machine"
+    },
+    {
+      "id": "TST_705",
+      "category": "Washer Dryer",
+      "keyword": "top load washing machine"
+    },
+    {
+      "id": "TST_706",
+      "category": "Washer Dryer",
+      "keyword": "front load washing machine"
+    },
+    {
+      "id": "TST_707",
+      "category": "Washer Dryer",
+      "keyword": "lg top load washing machine"
+    }
+  ]
+}

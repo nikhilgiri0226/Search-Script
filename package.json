@@ -1,0 +1,20 @@
+{
+  "name": "playwright-search-api-tests",
+  "version": "1.0.0",
+  "description": "Configurable Playwright + TypeScript project for search API validation",
+  "scripts": {
+    "test": "node scripts/run-tests.js",
+    "test:headed": "PW_HEADLESS=false node scripts/run-tests.js",
+    "lint": "echo 'No lint configured'"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}

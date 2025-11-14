@@ -1,0 +1,87 @@
+{
+  "environment": "prod",
+  "environments": {
+    "prod": {
+      "name": "prod-api",
+      "baseUrl": "https://ezzn5xede7.execute-api.us-west-1.amazonaws.com/prod-api",
+      "defaultParams": {
+        "limit": 10
+      }
+    },
+    "nonProd": {
+      "name": "nonprod-api",
+      "baseUrl": "https://ezzn5xede7.execute-api.us-west-1.amazonaws.com/nonprod-api",
+      "defaultParams": {
+        "limit": 10
+      }
+    }
+  },
+  "api": {
+    "endpoint": "/filterProducts",
+    "timeoutMs": 10000,
+    "delayBetweenCallsMs": 500,
+    "expectedStatusCodes": [200, 201],
+    "pagination": {
+      "mode": "firstPage",
+      "pageParam": "page",
+      "startPage": 1,
+      "maxPages": 5,
+      "pageSizeParam": "limit",
+      "pageSize": null,
+      "pauseBetweenPagesMs": 0,
+      "responseFields": {
+        "currentPage": "pagination.currentPage",
+        "totalPages": "pagination.totalPages",
+        "hasNextPage": "pagination.hasNextPage",
+        "totalCount": "pagination.totalCount"
+      }
+    }
+  },
+  "playwright": {
+    "headless": true,
+    "timeoutMs": 30000,
+    "expectTimeoutMs": 5000,
+    "retries": 0,
+    "reporter": "html"
+  },
+  "quality": {
+    "partialPassPercentage": 90,
+    "fullPassPercentage": 100,
+    "statusColors": {
+      "PASS": "#C8E6C9",
+      "PASS_REVIEW": "#FFF9C4",
+      "FAIL": "#FFCDD2",
+      "REVIEW": "#FFE0B2"
+    },
+    "failStrategy": "continue",
+    "failThresholdPercent": 10
+  },
+  "runner": {
+    "workers": 1,
+    "maxInFlightRequests": 5,
+    "batchSize": 100,
+    "batchPauseMs": 60000,
+    "queryLimit": null
+  },
+  "results": {
+    "retainDays": 30,
+    "retainRuns": 20
+  },
+  "alerts": {
+    "email": {
+      "enabled": false,
+      "recipients": [],
+      "smtpHost": "",
+      "smtpPort": 587,
+      "smtpUser": "",
+      "smtpPassword": "",
+      "from": "",
+      "subject": "Search API Test Summary"
+    },
+    "slack": {
+      "enabled": false,
+      "webhookUrl": "",
+      "channel": ""
+    }
+  }
+}
